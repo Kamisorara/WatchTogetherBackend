@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.watchtogether.watchtogetherbackend.mapper.sys.UserMapper">
+    <select id="FindUserById">
+        SELECT su.user_name
+        FROM `sys_user` su
+        WHERE su.id = #{userId};
+    </select>
+
+    <select id="selectUserIdByUserName">
+        SELECT su.id
+        FROM sys_user su
+        WHERE su.user_name = #{userName};
+    </select>
+
+    <select id="getUserStatus">
+        SELECT su.user_status
+        FROM sys_user su
+        WHERE su.id = #{userId};
+    </select>
+
+</mapper>
