@@ -3,8 +3,10 @@ package com.watchtogether.watchtogetherbackend.controller.sys;
 import com.watchtogether.watchtogetherbackend.entity.response.RestBean;
 import com.watchtogether.watchtogetherbackend.entity.sys.SysUser;
 import com.watchtogether.watchtogetherbackend.service.sys.LoginService;
+import com.watchtogether.watchtogetherbackend.service.sys.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,9 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserBasicOperation {
     @Resource
     private LoginService loginService;
+    @Resource
+    private UserService userService;
 
     /**
      * 登录
+     *
      * @param request
      * @return
      */
@@ -33,6 +38,7 @@ public class UserBasicOperation {
 
     /**
      * 注册
+     *
      * @param request
      * @return
      */
@@ -47,6 +53,7 @@ public class UserBasicOperation {
 
     /**
      * 退出
+     *
      * @return
      */
     @PostMapping("/logout")
@@ -54,4 +61,12 @@ public class UserBasicOperation {
         return loginService.logout();
     }
 
+    /**
+     * 测试根据token返回用户id
+     */
+    @GetMapping("/token-test")
+    public RestBean tokenTest(HttpServletRequest request) throws Exception {
+        Long userId = userService.getUserIdFromToken(request);
+        return RestBean.success(userId);
+    }
 }

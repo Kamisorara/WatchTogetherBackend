@@ -1,5 +1,7 @@
 package com.watchtogether.watchtogetherbackend.filter;
 
+import com.alibaba.fastjson2.JSONObject;
+import com.watchtogether.watchtogetherbackend.entity.response.RestBean;
 import com.watchtogether.watchtogetherbackend.entity.userdetail.LoginUser;
 import com.watchtogether.watchtogetherbackend.utils.JWTUtil;
 import com.watchtogether.watchtogetherbackend.utils.RedisCache;
@@ -26,6 +28,7 @@ public class JWTAuthenticationTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        response.setCharacterEncoding("UTF-8");
         String token = request.getHeader("token");
         if (StringUtils.isEmpty(token)) {
             filterChain.doFilter(request, response);
@@ -36,12 +39,17 @@ public class JWTAuthenticationTokenFilter extends OncePerRequestFilter {
             Claims claims = JWTUtil.parseJWT(token);
             userId = claims.getSubject();
         } catch (Exception e) {
-            throw new RuntimeException("token非法");
+            response.getWriter().write(JSONObject.toJSONString(RestBean.error(400, "token非法")));
+            return;
+//            throw new RuntimeException("token非法");
         }
         String redisKey = "login:" + userId;
         LoginUser loginUser = redisCache.getCacheObject(redisKey);
         if (Objects.isNull(loginUser)) {
-            throw new RuntimeException("用户未登录");
+            response.getWriter().write(JSONObject.toJSONString(RestBean.error(400, "用户未登录")));
+            return;
+//            throw new RuntimeException("用户未登录");
+
         }
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
