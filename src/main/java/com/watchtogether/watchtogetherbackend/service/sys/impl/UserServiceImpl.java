@@ -2,7 +2,10 @@ package com.watchtogether.watchtogetherbackend.service.sys.impl;
 
 import com.watchtogether.watchtogetherbackend.mapper.sys.UserMapper;
 import com.watchtogether.watchtogetherbackend.service.sys.UserService;
+import com.watchtogether.watchtogetherbackend.utils.JWTUtil;
+import io.jsonwebtoken.Claims;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,5 +16,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public String getUserName(Long userId) {
         return userMapper.FindUserById(userId);
+    }
+
+    @Override
+    public Long getUserIdFromToken(HttpServletRequest request) throws Exception {
+        // 获取token
+        String token = request.getHeader("token");
+        Claims claims = JWTUtil.parseJWT(token);
+        String userId = claims.get("sub").toString();
+        return Long.parseLong(userId);
     }
 }
