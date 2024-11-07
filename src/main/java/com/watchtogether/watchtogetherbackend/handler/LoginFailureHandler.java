@@ -15,6 +15,6 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(JSONObject.toJSONString(RestBean.error(304, exception.getMessage())));
+        response.getWriter().write(JSONObject.toJSONString(RestBean.error(400, "账号或密码错误")));
     }
 }

@@ -16,6 +16,6 @@ public class ExceptionHandler implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(JSONObject.toJSONString(RestBean.error(304, authException.getMessage())));
+        response.getWriter().write(JSONObject.toJSONString(RestBean.error(400, "你没有权限那么做")));
     }
 }
