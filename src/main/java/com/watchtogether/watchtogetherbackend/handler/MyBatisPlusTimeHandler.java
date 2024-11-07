@@ -2,12 +2,14 @@ package com.watchtogether.watchtogetherbackend.handler;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import org.apache.ibatis.reflection.MetaObject;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
 /**
  * mybatis-plus 时间处理
  */
+@Component
 public class MyBatisPlusTimeHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
