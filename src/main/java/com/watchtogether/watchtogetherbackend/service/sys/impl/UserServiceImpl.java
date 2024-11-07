@@ -26,4 +26,11 @@ public class UserServiceImpl implements UserService {
         String userId = claims.get("sub").toString();
         return Long.parseLong(userId);
     }
+
+    @Override
+    public Boolean JudgeOnlyEmail(String email) {
+        Integer emailNum = userMapper.countUserEmail(email);
+        return emailNum == 0;
+    }
+
 }

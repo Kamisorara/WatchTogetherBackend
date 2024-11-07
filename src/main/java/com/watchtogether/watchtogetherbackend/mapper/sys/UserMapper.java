@@ -14,4 +14,7 @@ public interface UserMapper extends BaseMapper<SysUser> {
 
     // 根据用户id获取用户状态（是否启用）
     String getUserStatus(Long userId);
+
+    // 查看同一邮箱的数目
+    Integer countUserEmail(String email);
 }

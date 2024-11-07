@@ -3,6 +3,8 @@ package com.watchtogether.watchtogetherbackend.entity.sys;
 import java.util.Date;
 import java.io.Serializable;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -52,6 +54,7 @@ public class SysUser implements Serializable {
     /**
      * 用户账号创建时间
      */
+    @TableField(fill = FieldFill.INSERT)
     private Date createTime;
     /**
      * 用户是否为管理员(0是，1否)

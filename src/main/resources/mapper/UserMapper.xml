@@ -19,4 +19,10 @@
         WHERE su.id = #{userId};
     </select>
 
+    <select id="countUserEmail">
+        SELECT COUNT(su.user_email)
+        FROM sys_user su
+        WHERE su.user_email = #{email};
+    </select>
+
 </mapper>
