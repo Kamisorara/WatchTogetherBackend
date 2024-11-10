@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -16,6 +17,7 @@ import java.util.UUID;
  *
  * @author Kamisora
  */
+@Component
 public class JWTUtil {
 
     // 定义JWT的有效期，7天（以毫秒为单位）
