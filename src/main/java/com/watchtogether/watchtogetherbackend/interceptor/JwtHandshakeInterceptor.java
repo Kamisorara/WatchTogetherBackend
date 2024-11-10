@@ -28,7 +28,7 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
             Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) message.getHeaders().get("nativeHeaders");
             if (nativeHeaders != null && nativeHeaders.containsKey("token")) {
                 String token = nativeHeaders.get("token").get(0); // 获取 token
-                System.out.println("Received token: " + token);
+//                System.out.println("Received token: " + token);
 
                 // 验证 token
                 if (token == null || !isValidToken(token)) {
@@ -54,7 +54,7 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
                 return loginUser != null;
             } catch (Exception e) {
                 // 捕获并处理JWT解析异常
-                System.out.println("JWT非法或已过期: " + e.getMessage());
+//                System.out.println("JWT非法或已过期: " + e.getMessage());
             }
         }
         return false;
