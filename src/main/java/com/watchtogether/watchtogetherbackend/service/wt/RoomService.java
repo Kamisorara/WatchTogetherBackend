@@ -8,7 +8,7 @@ public interface RoomService {
     String createRoom(String userId);
 
     // 加入房间
-    Boolean addUserToRoom(String roomCode, String userId);
+    void addUserToRoom(String roomCode, String userId);
 
     // 检查对应房间是否存在
     Boolean roomExists(String roomCode);
@@ -17,5 +17,11 @@ public interface RoomService {
     Set<String> getUserInRoom(String roomCode);
 
     // 用户断开时移除房间
-    Boolean removeUserFromRoom(String roomCode, String userId);
+    void removeUserFromRoom(String roomCode, String userId);
+
+    // 判断房间是否为空
+    Boolean isEmptyRoom(String roomCode);
+
+    // 删除房间
+    void removeRoom(String roomCode);
 }

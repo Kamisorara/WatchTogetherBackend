@@ -23,6 +23,7 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         // 只在 CONNECT 类型消息中处理 token
+//        System.out.println(message);
         if (message.getHeaders().get("simpMessageType") == SimpMessageType.CONNECT) {
             // 从 nativeHeaders 中获取 token
             Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) message.getHeaders().get("nativeHeaders");

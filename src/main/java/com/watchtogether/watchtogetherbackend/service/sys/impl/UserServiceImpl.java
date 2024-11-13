@@ -19,9 +19,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Long getUserIdFromToken(HttpServletRequest request) throws Exception {
+    public Long getUserIdFromServerletRequest(HttpServletRequest request) throws Exception {
         // 获取token
         String token = request.getHeader("token");
+        Claims claims = JWTUtil.parseJWT(token);
+        String userId = claims.get("sub").toString();
+        return Long.parseLong(userId);
+    }
+
+    @Override
+    public Long getUserIdFromToken(String token) throws Exception {
         Claims claims = JWTUtil.parseJWT(token);
         String userId = claims.get("sub").toString();
         return Long.parseLong(userId);

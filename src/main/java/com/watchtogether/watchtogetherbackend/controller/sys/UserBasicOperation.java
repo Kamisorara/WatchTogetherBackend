@@ -66,7 +66,7 @@ public class UserBasicOperation {
      */
     @GetMapping("/token-test")
     public RestBean tokenTest(HttpServletRequest request) throws Exception {
-        Long userId = userService.getUserIdFromToken(request);
+        Long userId = userService.getUserIdFromServerletRequest(request);
         return RestBean.success(userId);
     }
 }

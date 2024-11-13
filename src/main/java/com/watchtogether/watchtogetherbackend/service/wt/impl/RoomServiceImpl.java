@@ -3,6 +3,7 @@ package com.watchtogether.watchtogetherbackend.service.wt.impl;
 import com.watchtogether.watchtogetherbackend.service.wt.RoomService;
 import com.watchtogether.watchtogetherbackend.utils.RedisCache;
 import jakarta.annotation.Resource;
+import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -34,11 +35,17 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public Boolean addUserToRoom(String roomCode, String userId) {
+    public void addUserToRoom(String roomCode, String userId) {
         try {
             String roomKey = ROOM_PREFIX + roomCode;
-            redisCache.getCacheSet(roomKey).add(userId);
-            return true;
+            Set<String> userSet = redisCache.getCacheSet(roomKey);
+            if (userSet != null) {
+//                System.out.println(userId);
+                userSet.add(userId);
+                redisCache.setCacheSet(roomKey, userSet);
+            } else {
+                throw new RuntimeException("房间不存在或数据不完整");
+            }
         } catch (Exception e) {
             throw new RuntimeException(userId + "加入房间失败");
         }
@@ -57,13 +64,36 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public Boolean removeUserFromRoom(String roomCode, String userId) {
+    public void removeUserFromRoom(String roomCode, String userId) {
         try {
             String roomKey = ROOM_PREFIX + roomCode;
-            redisCache.getCacheSet(roomKey).remove(userId);
-            return true;
+            // 获取绑定的 Redis Set 操作
+            BoundSetOperations<String, String> setOps = redisCache.redisTemplate.boundSetOps(roomKey);
+            if (setOps.isMember(userId)) {
+                // 删除删除用户
+                setOps.remove(userId);
+            } else {
+                throw new RuntimeException(userId + "不在房间中");
+            }
         } catch (Exception e) {
-            throw new RuntimeException(userId + "离开房间失败");
+            throw new RuntimeException(userId + "离开房间失败", e);
+        }
+    }
+
+    @Override
+    public Boolean isEmptyRoom(String roomCode) {
+        String roomKey = ROOM_PREFIX + roomCode;
+        return redisCache.getCacheSet(roomKey).isEmpty();
+    }
+
+    @Override
+    public void removeRoom(String roomCode) {
+        try {
+            if (isEmptyRoom(roomCode)) {
+                redisCache.deleteObject(roomCode);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("无法删除房间");
         }
     }
 }

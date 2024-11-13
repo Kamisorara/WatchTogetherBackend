@@ -25,7 +25,7 @@ public class RoomController {
      */
     @PostMapping("/create")
     public RestBean createRoom(HttpServletRequest request) throws Exception {
-        String userId = userService.getUserIdFromToken(request).toString();
+        String userId = userService.getUserIdFromServerletRequest(request).toString();
         String roomCode = roomService.createRoom(userId);
         return RestBean.success(roomCode);
     }
@@ -43,7 +43,7 @@ public class RoomController {
         if (!roomService.roomExists(roomCode)) {
             return RestBean.error(400, "房间不存在，请输入正确的房间号");
         } else {
-            Long userId = userService.getUserIdFromToken(request);
+            Long userId = userService.getUserIdFromServerletRequest(request);
             roomService.addUserToRoom(roomCode, userId.toString());
             return RestBean.success(userId + "加入" + roomCode + "房间");
         }
