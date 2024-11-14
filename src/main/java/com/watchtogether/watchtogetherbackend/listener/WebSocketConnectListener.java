@@ -3,6 +3,7 @@ package com.watchtogether.watchtogetherbackend.listener;
 import com.watchtogether.watchtogetherbackend.service.sys.UserService;
 import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
@@ -13,7 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 @Component
+@Slf4j
 public class WebSocketConnectListener implements ApplicationListener<SessionConnectedEvent> {
     @Resource
     private UserService userService;
@@ -46,11 +49,10 @@ public class WebSocketConnectListener implements ApplicationListener<SessionConn
                         userInfo.put("userId", userId);
                         userInfo.put("roomCode", roomCode);
                         sessionInfoMap.put(sessionId, userInfo);
-                        System.out.println("用户 " + userId + "加入房间" + roomCode);
+                        log.info("id:{}用户加入房间{}", userId, roomCode);
                     }
                 } catch (Exception e) {
-//                    throw new RuntimeException("获取session用户中的用户id发生错误");
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("加入房间时发生错误");
                 }
             }
         }
