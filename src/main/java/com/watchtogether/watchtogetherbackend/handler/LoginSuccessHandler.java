@@ -41,7 +41,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
             Map<String, Object> map = new HashMap<>();
             map.put("token", jwt);
             redisCache.setCacheObject("login:" + id, loginUser);
-            log.info("id为:{} 的用户登录成功", id);
+            log.info("id:{}用户登录成功", id);
             response.getWriter().write(JSONObject.toJSONString(RestBean.success(map)));
         }
     }
