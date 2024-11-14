@@ -19,7 +19,7 @@
         </File>
 
         <!-- 滚动文件输出 -->
-        <RollingFile name="RollingFile" fileName="logs/app.log"
+        <RollingFile name="RollingFile" fileName="app.log"
                      filePattern="logs/app-%d{yyyy-MM-dd}-%i.log.gz">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p [%t] %c{1} - %m%n"/>
             <Policies>
