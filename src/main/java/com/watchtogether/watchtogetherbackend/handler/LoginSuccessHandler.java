@@ -10,6 +10,9 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -19,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     @Resource
     private RedisCache redisCache;
@@ -37,6 +41,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
             Map<String, Object> map = new HashMap<>();
             map.put("token", jwt);
             redisCache.setCacheObject("login:" + id, loginUser);
+            log.info("id为:{} 的用户登录成功", id);
             response.getWriter().write(JSONObject.toJSONString(RestBean.success(map)));
         }
     }

@@ -6,12 +6,14 @@ import com.watchtogether.watchtogetherbackend.service.sys.UserService;
 import com.watchtogether.watchtogetherbackend.service.wt.RoomService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/room")
+@Slf4j
 public class RoomController {
     @Resource
     private RoomService roomService;
@@ -27,6 +29,7 @@ public class RoomController {
     public RestBean createRoom(HttpServletRequest request) throws Exception {
         String userId = userService.getUserIdFromServerletRequest(request).toString();
         String roomCode = roomService.createRoom(userId);
+        log.info("id:{}用户创建{}房间", userId, roomCode);
         return RestBean.success(roomCode);
     }
 
@@ -45,6 +48,7 @@ public class RoomController {
         } else {
             Long userId = userService.getUserIdFromServerletRequest(request);
             roomService.addUserToRoom(roomCode, userId.toString());
+            log.info("id:{}用户加入房间{}", userId, roomCode);
             return RestBean.success(userId + "加入" + roomCode + "房间");
         }
     }
@@ -55,10 +59,6 @@ public class RoomController {
     @MessageMapping("/video-control/{roomCode}")
     @SendTo("/topic/video-sync/{roomCode}")
     public VideoControlMessage handleVideoControl(VideoControlMessage message) throws Exception {
-//        String userId = userService.getUserIdFromToken(request).toString();
-//        if (!roomService.getUserInRoom(roomCode).contains(userId)) {
-//            throw new Exception(userId + "没有授权");
-//        }
         return message;
     }
 

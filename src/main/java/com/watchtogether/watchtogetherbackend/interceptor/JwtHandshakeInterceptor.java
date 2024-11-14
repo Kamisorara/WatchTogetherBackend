@@ -33,10 +33,10 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor {
 
                 // 验证 token
                 if (token == null || !isValidToken(token)) {
-                    throw new RuntimeException("Invalid or expired token");
+                    throw new RuntimeException("Token非法或过期");
                 }
             } else {
-                throw new RuntimeException("Missing token");
+                throw new RuntimeException("未携带Token");
             }
         }
         return message;

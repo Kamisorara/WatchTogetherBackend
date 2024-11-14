@@ -10,6 +10,7 @@ import com.watchtogether.watchtogetherbackend.service.sys.LoginService;
 import com.watchtogether.watchtogetherbackend.service.sys.UserService;
 import com.watchtogether.watchtogetherbackend.utils.RedisCache;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class LoginServiceImpl implements LoginService {
     @Resource
     private AuthenticationManager authenticationManager;
@@ -56,6 +58,7 @@ public class LoginServiceImpl implements LoginService {
                 userRole.setUserId(userId);
                 userRole.setRoleId(1L);
                 userRoleMapper.insert(userRole);
+                log.info("id:{}用户注册成功", userId);
                 return RestBean.success("注册成功");
             } else {
                 return RestBean.error(304, "注册失败");
@@ -73,6 +76,7 @@ public class LoginServiceImpl implements LoginService {
             LoginUser loginuser = (LoginUser) authentication.getPrincipal();
             Long userId = loginuser.getUser().getId();
             redisCache.deleteObject("login:" + userId);
+            log.info("id:{}用户退出", userId);
             return RestBean.success("退出成功");
         } catch (Exception e) {
             return RestBean.error(400, "发生错误请联系管理员或重试");
