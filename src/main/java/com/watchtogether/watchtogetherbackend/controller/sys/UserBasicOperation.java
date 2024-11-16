@@ -4,6 +4,7 @@ import com.watchtogether.watchtogetherbackend.entity.response.RestBean;
 import com.watchtogether.watchtogetherbackend.entity.sys.SysUser;
 import com.watchtogether.watchtogetherbackend.service.sys.LoginService;
 import com.watchtogether.watchtogetherbackend.service.sys.UserService;
+import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,6 +49,12 @@ public class UserBasicOperation {
         String password = request.getParameter("password");
         String passwordRepeat = request.getParameter("passwordRepeat");
         String email = request.getParameter("email");
+        if (StringUtils.isEmpty(username) ||
+                StringUtils.isEmpty(password) ||
+                StringUtils.isEmpty(passwordRepeat) ||
+                StringUtils.isEmpty(email)) {
+            return RestBean.error(400, "注册失败");
+        }
         return loginService.register(username, password, passwordRepeat, email);
     }
 
