@@ -1,31 +1,4 @@
-server:
-  port: 8080
-
+# application.yaml
 spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3307/watch_together?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
-    username: root
-    password: 123456
-  data:
-    redis:
-      host: 127.0.0.1
-      port: 6379
-      password:
-      database: 0
-      connect-timeout: 60s
-      lettuce:
-        pool:
-          max-active: 10
-          max-idle: 8
-          min-idle: 0
-          max-wait: 5s
-
-mybatis-plus:
-  configuration:
-    map-underscore-to-camel-case: true
-  mapper-locations: classpath*:/mapper/**/*.xml
-#  global-config:
-#    db-config:
-#      # ID??
-#      id-type: auto
+  profiles:
+    active: dev  # 默认激活开发环境配置

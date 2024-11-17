@@ -5,6 +5,7 @@ import com.watchtogether.watchtogetherbackend.handler.ExceptionHandler;
 import com.watchtogether.watchtogetherbackend.handler.LoginFailureHandler;
 import com.watchtogether.watchtogetherbackend.handler.LoginSuccessHandler;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,6 +34,9 @@ public class SecurityConfig {
 
     @Resource
     private JWTAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+
+    @Value("${cors.allowedOrigins}")
+    private String allowedOrigins;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -80,7 +84,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:5000");
+        configuration.addAllowedOrigin(allowedOrigins);
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true); // 允许携带凭证

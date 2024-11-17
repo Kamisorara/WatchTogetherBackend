@@ -2,6 +2,7 @@ package com.watchtogether.watchtogetherbackend.config;
 
 import com.watchtogether.watchtogetherbackend.interceptor.JwtHandshakeInterceptor;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -16,6 +17,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Resource
     private JwtHandshakeInterceptor jwtHandshakeInterceptor;
 
+    @Value("${cors.allowedOrigins}")
+    private String allowedOrigins;
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic"); // Messages from server to client
@@ -25,7 +29,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/websocket")
-                .setAllowedOrigins("http://localhost:5000")
+                .setAllowedOrigins(allowedOrigins)
                 .withSockJS()
                 .setInterceptors(new HttpSessionHandshakeInterceptor()); // 开启session支持
 
