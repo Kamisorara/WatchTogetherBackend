@@ -2,15 +2,15 @@ package com.watchtogether.watchtogetherbackend.controller.sys;
 
 import com.watchtogether.watchtogetherbackend.entity.response.RestBean;
 import com.watchtogether.watchtogetherbackend.entity.sys.SysUser;
+import com.watchtogether.watchtogetherbackend.service.fastdfs.FastDFSService;
 import com.watchtogether.watchtogetherbackend.service.sys.LoginService;
 import com.watchtogether.watchtogetherbackend.service.sys.UserService;
+import com.watchtogether.watchtogetherbackend.utils.FastDFSClient;
 import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/sys")
@@ -19,6 +19,8 @@ public class UserBasicOperation {
     private LoginService loginService;
     @Resource
     private UserService userService;
+    @Resource
+    private FastDFSService fastDFSService;
 
     /**
      * 登录
@@ -76,4 +78,16 @@ public class UserBasicOperation {
         Long userId = userService.getUserIdFromServerletRequest(request);
         return RestBean.success(userId);
     }
+
+
+    /**
+     * FastDFS上传文件测试
+     */
+    @PostMapping("/fastdfs-upload")
+    public RestBean fastdfsUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws Exception {
+        String resultUrl = fastDFSService.uploadImg(file);
+        Long userId = userService.getUserIdFromServerletRequest(request);
+        return RestBean.success(resultUrl + "  " + "userId:" + userId.toString());
+    }
+
 }
