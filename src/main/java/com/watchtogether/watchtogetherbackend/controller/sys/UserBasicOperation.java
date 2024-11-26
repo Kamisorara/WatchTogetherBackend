@@ -70,6 +70,11 @@ public class UserBasicOperation {
         return loginService.logout();
     }
 
+    @GetMapping("/user-info")
+    public RestBean getUserInfo(HttpServletRequest request) throws Exception {
+        return RestBean.success(userService.getUserInfoByToken(request));
+    }
+
     /**
      * 测试根据token返回用户id
      */

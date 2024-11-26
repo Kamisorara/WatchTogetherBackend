@@ -1,5 +1,6 @@
 package com.watchtogether.watchtogetherbackend.service.sys.impl;
 
+import com.watchtogether.watchtogetherbackend.entity.response.UserInfoResp;
 import com.watchtogether.watchtogetherbackend.mapper.sys.UserMapper;
 import com.watchtogether.watchtogetherbackend.service.sys.UserService;
 import com.watchtogether.watchtogetherbackend.utils.JWTUtil;
@@ -45,6 +46,12 @@ public class UserServiceImpl implements UserService {
         Long userId = getUserIdFromServerletRequest(request);
         userMapper.updateUserAvatar(userId, avatarUrl);
 
+    }
+
+    @Override
+    public UserInfoResp getUserInfoByToken(HttpServletRequest request) throws Exception {
+        Long userId = getUserIdFromServerletRequest(request);
+        return userMapper.getUserInfoById(userId);
     }
 
 }

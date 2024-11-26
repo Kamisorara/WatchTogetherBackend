@@ -1,6 +1,7 @@
 package com.watchtogether.watchtogetherbackend.mapper.sys;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.watchtogether.watchtogetherbackend.entity.response.UserInfoResp;
 import com.watchtogether.watchtogetherbackend.entity.sys.SysUser;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -21,4 +22,8 @@ public interface UserMapper extends BaseMapper<SysUser> {
 
     // 更细用户头像
     Integer updateUserAvatar(@Param("userId") Long userId, @Param("avatarUrl") String avatarUrl);
+
+    // 根据用户id获取用户详情
+    UserInfoResp getUserInfoById(@Param("userId") Long userId);
+
 }

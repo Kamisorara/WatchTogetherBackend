@@ -31,4 +31,9 @@
         WHERE su.id = #{userId};
     </update>
 
+    <select id="getUserInfoById">
+        SELECT *
+        FROM sys_user su
+        WHERE su.id = #{userId};
+    </select>
 </mapper>

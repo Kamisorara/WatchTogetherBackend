@@ -1,5 +1,6 @@
 package com.watchtogether.watchtogetherbackend.service.sys;
 
+import com.watchtogether.watchtogetherbackend.entity.response.UserInfoResp;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -21,4 +22,6 @@ public interface UserService {
     // 根据用户id更新用户头像
     void updateUserAvatarByToken(HttpServletRequest request, String avatarUrl) throws Exception;
 
+    // 根据用户Token，获取用户信息
+    UserInfoResp getUserInfoByToken(HttpServletRequest request) throws Exception;
 }
