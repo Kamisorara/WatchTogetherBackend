@@ -41,9 +41,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean updateUserAvatarByToken(HttpServletRequest request, String avatarUrl) throws Exception {
+    public void updateUserAvatarByToken(HttpServletRequest request, String avatarUrl) throws Exception {
         Long userId = getUserIdFromServerletRequest(request);
-        return userMapper.updateUserAvatar(userId, avatarUrl) > -1;
+        userMapper.updateUserAvatar(userId, avatarUrl);
 
     }
 

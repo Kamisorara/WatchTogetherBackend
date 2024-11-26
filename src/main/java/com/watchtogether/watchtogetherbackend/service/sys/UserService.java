@@ -19,6 +19,6 @@ public interface UserService {
     Boolean JudgeOnlyEmail(String email);
 
     // 根据用户id更新用户头像
-    Boolean updateUserAvatarByToken(HttpServletRequest request, String avatarUrl) throws Exception;
+    void updateUserAvatarByToken(HttpServletRequest request, String avatarUrl) throws Exception;
 
 }
