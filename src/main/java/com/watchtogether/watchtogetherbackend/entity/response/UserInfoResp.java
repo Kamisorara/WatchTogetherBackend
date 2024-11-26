@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 /**
  * 用户信息回复类
  */
@@ -16,5 +18,6 @@ public class UserInfoResp {
     private String userEmail;
     private String userPhone;
     private String userAvatar;
+    private String createTime;
     private Character userSex;
 }
