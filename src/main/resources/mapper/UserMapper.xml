@@ -25,4 +25,10 @@
         WHERE su.user_email = #{email};
     </select>
 
+    <update id="updateUserAvatar">
+        UPDATE sys_user su
+        SET su.user_avatar = #{avatarUrl}
+        WHERE su.id = #{userId};
+    </update>
+
 </mapper>

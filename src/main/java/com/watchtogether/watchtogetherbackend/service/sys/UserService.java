@@ -18,4 +18,7 @@ public interface UserService {
     // 判断邮箱是否唯一
     Boolean JudgeOnlyEmail(String email);
 
+    // 根据用户id更新用户头像
+    Boolean updateUserAvatarByToken(HttpServletRequest request, String avatarUrl) throws Exception;
+
 }

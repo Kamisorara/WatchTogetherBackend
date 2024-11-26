@@ -3,6 +3,7 @@ package com.watchtogether.watchtogetherbackend.mapper.sys;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.watchtogether.watchtogetherbackend.entity.sys.SysUser;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface UserMapper extends BaseMapper<SysUser> {
@@ -17,4 +18,7 @@ public interface UserMapper extends BaseMapper<SysUser> {
 
     // 查看同一邮箱的数目
     Integer countUserEmail(String email);
+
+    // 更细用户头像
+    Integer updateUserAvatar(@Param("userId") Long userId, @Param("avatarUrl") String avatarUrl);
 }

@@ -40,4 +40,11 @@ public class UserServiceImpl implements UserService {
         return emailNum == 0;
     }
 
+    @Override
+    public Boolean updateUserAvatarByToken(HttpServletRequest request, String avatarUrl) throws Exception {
+        Long userId = getUserIdFromServerletRequest(request);
+        return userMapper.updateUserAvatar(userId, avatarUrl) > -1;
+
+    }
+
 }

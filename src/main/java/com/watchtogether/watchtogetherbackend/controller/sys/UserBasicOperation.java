@@ -86,8 +86,8 @@ public class UserBasicOperation {
     @PostMapping("/fastdfs-upload")
     public RestBean fastdfsUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws Exception {
         String resultUrl = fastDFSService.uploadImg(file);
-        Long userId = userService.getUserIdFromServerletRequest(request);
-        return RestBean.success(resultUrl + "  " + "userId:" + userId.toString());
+        userService.updateUserAvatarByToken(request, resultUrl);
+        return RestBean.success("头像更新成功");
     }
 
 }
