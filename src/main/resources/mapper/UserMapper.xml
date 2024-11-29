@@ -36,4 +36,11 @@
         FROM sys_user su
         WHERE su.id = #{userId};
     </select>
+
+    <update id="updateUserDetailInfo">
+        UPDATE sys_user su
+        SET su.user_phone = #{userPhone},
+            su.user_sex   = #{userSex}
+        WHERE su.id = #{userId};
+    </update>
 </mapper>

@@ -24,4 +24,7 @@ public interface UserService {
 
     // 根据用户Token，获取用户信息
     UserInfoResp getUserInfoByToken(HttpServletRequest request) throws Exception;
+
+    // 更新用户手机号和性别
+    Boolean updateUserPhoneAndSexInfo(HttpServletRequest request, String userPhone, String userSex) throws Exception;
 }

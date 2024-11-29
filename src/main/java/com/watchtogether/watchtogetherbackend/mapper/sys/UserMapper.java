@@ -26,4 +26,6 @@ public interface UserMapper extends BaseMapper<SysUser> {
     // 根据用户id获取用户详情
     UserInfoResp getUserInfoById(@Param("userId") Long userId);
 
+    // 修改用户数据
+    Integer updateUserDetailInfo(@Param("userId") Long userId, @Param("userPhone") String userPhone, @Param("userSex") String userSex);
 }

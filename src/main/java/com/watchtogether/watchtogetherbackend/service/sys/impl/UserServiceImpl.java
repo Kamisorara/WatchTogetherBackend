@@ -54,4 +54,10 @@ public class UserServiceImpl implements UserService {
         return userMapper.getUserInfoById(userId);
     }
 
+    @Override
+    public Boolean updateUserPhoneAndSexInfo(HttpServletRequest request, String userPhone, String userSex) throws Exception {
+        Long userId = getUserIdFromServerletRequest(request);
+        return userMapper.updateUserDetailInfo(userId, userPhone, userSex) > 0;
+    }
+
 }
