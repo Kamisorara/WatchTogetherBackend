@@ -95,6 +95,7 @@ public class UserBasicOperation {
         return RestBean.success("头像更新成功");
     }
 
+
     @PostMapping("/update-userDetailInfo")
     public RestBean updateUserDetailInfo(HttpServletRequest request, @RequestParam("userPhone") String userPhone, @RequestParam("userSex") String userSex) throws Exception {
         if (userSex.equals("1") || userSex.equals("0") || userSex.equals("2")) {
