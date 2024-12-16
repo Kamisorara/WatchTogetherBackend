@@ -5,6 +5,7 @@ import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
@@ -16,6 +17,8 @@ import java.util.Map;
 public class WebSocketDisconnectListener implements ApplicationListener<SessionDisconnectEvent> {
     @Resource
     private RoomService roomService;
+    @Resource
+    private SimpMessagingTemplate messagingTemplate;
 
     @Override
     public void onApplicationEvent(SessionDisconnectEvent event) {
@@ -30,6 +33,8 @@ public class WebSocketDisconnectListener implements ApplicationListener<SessionD
             if (!StringUtils.isEmpty(userId)) {
                 if (!StringUtils.isEmpty(roomCode)) {
                     roomService.removeUserFromRoom(roomCode, userId);
+                    // 广播用户变动
+                    messagingTemplate.convertAndSend("/topic/user/" + roomCode, Map.of("type", "USER_CHANGE"));
                     log.info("id:{}用户离开房间", userId);
                 }
                 // 房间没人则从redis中移除房间

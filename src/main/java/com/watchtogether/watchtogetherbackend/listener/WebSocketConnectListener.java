@@ -5,6 +5,7 @@ import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
@@ -20,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketConnectListener implements ApplicationListener<SessionConnectedEvent> {
     @Resource
     private UserService userService;
+    @Resource
+    private SimpMessagingTemplate messagingTemplate;
 
     // 使用一个静态Map来存储sessionId与userId和roomCode的关联
     private static final Map<String, Map<String, String>> sessionInfoMap = new ConcurrentHashMap<>();
@@ -49,6 +52,10 @@ public class WebSocketConnectListener implements ApplicationListener<SessionConn
                         userInfo.put("userId", userId);
                         userInfo.put("roomCode", roomCode);
                         sessionInfoMap.put(sessionId, userInfo);
+
+                        // 广播用户变动
+                        messagingTemplate.convertAndSend("/topic/user/" + roomCode, Map.of("type", "USER_CHANGE"));
+
                         log.info("id:{}用户加入房间{}", userId, roomCode);
                     }
                 } catch (Exception e) {
