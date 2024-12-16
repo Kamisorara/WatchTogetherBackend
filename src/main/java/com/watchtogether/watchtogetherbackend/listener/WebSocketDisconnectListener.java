@@ -34,7 +34,7 @@ public class WebSocketDisconnectListener implements ApplicationListener<SessionD
                 if (!StringUtils.isEmpty(roomCode)) {
                     roomService.removeUserFromRoom(roomCode, userId);
                     // 广播用户变动
-                    messagingTemplate.convertAndSend("/topic/user/" + roomCode, Map.of("type", "USER_CHANGE"));
+                    messagingTemplate.convertAndSend("/topic/room/" + roomCode, Map.of("type", "USER_CHANGE"));
                     log.info("id:{}用户离开房间", userId);
                 }
                 // 房间没人则从redis中移除房间

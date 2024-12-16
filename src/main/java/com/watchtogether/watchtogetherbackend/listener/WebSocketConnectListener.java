@@ -54,7 +54,7 @@ public class WebSocketConnectListener implements ApplicationListener<SessionConn
                         sessionInfoMap.put(sessionId, userInfo);
 
                         // 广播用户变动
-                        messagingTemplate.convertAndSend("/topic/user/" + roomCode, Map.of("type", "USER_CHANGE"));
+                        messagingTemplate.convertAndSend("/topic/room/" + roomCode, Map.of("type", "USER_CHANGE"));
 
                         log.info("id:{}用户加入房间{}", userId, roomCode);
                     }
