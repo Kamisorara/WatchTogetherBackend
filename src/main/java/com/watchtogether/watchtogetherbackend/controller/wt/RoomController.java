@@ -1,6 +1,7 @@
 package com.watchtogether.watchtogetherbackend.controller.wt;
 
 import com.watchtogether.watchtogetherbackend.entity.response.RestBean;
+import com.watchtogether.watchtogetherbackend.entity.response.UserInfoResp;
 import com.watchtogether.watchtogetherbackend.entity.wt.VideoControlMessage;
 import com.watchtogether.watchtogetherbackend.service.sys.UserService;
 import com.watchtogether.watchtogetherbackend.service.wt.RoomService;
@@ -10,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/room")
@@ -50,6 +54,22 @@ public class RoomController {
             roomService.addUserToRoom(roomCode, userId.toString());
             log.info("id:{}用户加入房间{}", userId, roomCode);
             return RestBean.success(userId + "加入" + roomCode + "房间");
+        }
+    }
+
+    /**
+     * 获取房间内用户
+     */
+    @GetMapping("/get-room-user")
+    public RestBean getRoomUser(HttpServletRequest request) throws Exception {
+        String roomCode = request.getParameter("roomCode");
+        if (!roomService.roomExists(roomCode)) {
+            return RestBean.error(400, "房间不存在，请输入正确的房间号");
+        } else {
+            Long personalId = userService.getUserIdFromServerletRequest(request);
+            Set<String> userIdInRoom = roomService.getUserIdInRoom(roomCode);
+            List<UserInfoResp> userDetailsInRoom = roomService.getUserDetailsInRoom(userIdInRoom, String.valueOf(personalId));
+            return RestBean.success(userDetailsInRoom);
         }
     }
 

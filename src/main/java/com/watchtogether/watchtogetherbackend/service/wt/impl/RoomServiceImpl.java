@@ -1,20 +1,22 @@
 package com.watchtogether.watchtogetherbackend.service.wt.impl;
 
+import com.watchtogether.watchtogetherbackend.entity.response.UserInfoResp;
+import com.watchtogether.watchtogetherbackend.mapper.sys.UserMapper;
 import com.watchtogether.watchtogetherbackend.service.wt.RoomService;
 import com.watchtogether.watchtogetherbackend.utils.RedisCache;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class RoomServiceImpl implements RoomService {
 
     @Resource
     private RedisCache redisCache;
+    @Resource
+    private UserMapper userMapper;
 
     private static final String ROOM_PREFIX = "room_";
 
@@ -58,10 +60,23 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public Set<String> getUserInRoom(String roomCode) {
+    public Set<String> getUserIdInRoom(String roomCode) {
         String roomKey = ROOM_PREFIX + roomCode;
         return redisCache.getCacheSet(roomKey);
     }
+
+    @Override
+    public List<UserInfoResp> getUserDetailsInRoom(Set<String> userIdSet, String personalId) {
+        List<UserInfoResp> result = new ArrayList<>();
+        // 排除自己Id
+        userIdSet.remove(personalId);
+        for (String userId : userIdSet) {
+            UserInfoResp userDetailInfo = userMapper.getUserInfoById(Long.valueOf(userId));
+            result.add(userDetailInfo);
+        }
+        return result;
+    }
+
 
     @Override
     public void removeUserFromRoom(String roomCode, String userId) {
