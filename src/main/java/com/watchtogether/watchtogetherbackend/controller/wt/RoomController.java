@@ -82,4 +82,13 @@ public class RoomController {
         return message;
     }
 
+    /**
+     * 处理音频数据
+     */
+    @MessageMapping("/audio/{roomCode}")
+    @SendTo("/topic/audio-sync/{roomCode}")
+    public byte[] handleAudio(byte[] audioData) {
+        return audioData;
+    }
+
 }
