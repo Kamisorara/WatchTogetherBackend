@@ -42,3 +42,14 @@ fdfs:
     height: 150
   tracker-list: #TrackerList参数,支持多个
     - 192.168.11.130:22122
+
+# Swagger 配置
+springdoc:
+  api-docs:
+    enabled: false
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  packages-to-scan: com.wt.web.controller
