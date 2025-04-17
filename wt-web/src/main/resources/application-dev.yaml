@@ -15,7 +15,7 @@ spring:
   data:
     # Redis配置
     redis:
-      host: 192.168.11.130
+      host: localhost
       port: 6379
       password: Invincible
       database: 0
