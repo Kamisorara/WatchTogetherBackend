@@ -30,6 +30,9 @@
         <fastdfs.version>1.27.2</fastdfs.version>
         <mysql.version>8.0.33</mysql.version>
         <swagger.version>2.3.0</swagger.version>
+        <jaxb-api.version>2.3.1</jaxb-api.version>
+        <jaxb-impl.version>2.3.1</jaxb-impl.version>
+        <jaxb-core.version>2.3.0.1</jaxb-core.version>
     </properties>
 
     <dependencyManagement>
@@ -133,6 +136,22 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${swagger.version}</version>
+            </dependency>
+            <!-- JAXB API -->
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>${jaxb-impl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-core</artifactId>
+                <version>${jaxb-core.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
