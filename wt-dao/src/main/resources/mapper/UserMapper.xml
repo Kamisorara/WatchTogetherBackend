@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.watchtogether.watchtogetherbackend.mapper.sys.UserMapper">
+    <select id="FindUserById">
+        SELECT su.user_name
+        FROM `sys_user` su
+        WHERE su.id = #{userId};
+    </select>
+
+    <select id="selectUserIdByUserName">
+        SELECT su.id
+        FROM sys_user su
+        WHERE su.user_name = #{userName};
+    </select>
+
+    <select id="getUserStatus">
+        SELECT su.user_status
+        FROM sys_user su
+        WHERE su.id = #{userId};
+    </select>
+
+    <select id="countUserEmail">
+        SELECT COUNT(su.user_email)
+        FROM sys_user su
+        WHERE su.user_email = #{email};
+    </select>
+
+    <update id="updateUserAvatar">
+        UPDATE sys_user su
+        SET su.user_avatar = #{avatarUrl}
+        WHERE su.id = #{userId};
+    </update>
+
+    <select id="getUserInfoById">
+        SELECT *
+        FROM sys_user su
+        WHERE su.id = #{userId};
+    </select>
+
+    <update id="updateUserDetailInfo">
+        UPDATE sys_user su
+        SET su.user_phone = #{userPhone},
+            su.user_sex   = #{userSex}
+        WHERE su.id = #{userId};
+    </update>
+</mapper>
