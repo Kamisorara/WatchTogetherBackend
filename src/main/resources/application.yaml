@@ -1,4 +1,0 @@
-# application.yaml
-spring:
-  profiles:
-    active: dev  # 默认激活开发环境配置
