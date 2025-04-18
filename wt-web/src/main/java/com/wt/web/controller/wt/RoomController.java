@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wt.entity.resp.RestBean;
 import com.wt.entity.resp.UserInfoResp;
 import com.wt.entity.wt.AudioMessage;
+import com.wt.entity.wt.SignalingMessage;
 import com.wt.entity.wt.VideoControlMessage;
 import com.wt.service.system.UserService;
 import com.wt.service.wt.RoomService;
@@ -19,7 +20,6 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -130,5 +130,24 @@ public class RoomController {
             return null;
         }
     }
+
+    /**
+     * 中继信令消息
+     *
+     * @param roomCode 房间号
+     * @param message  信令消息
+     * @return 信令消息
+     */
+    @MessageMapping("/rtc-signaling/{roomCode}")
+    @SendTo("/topic/rtc-signaling/{roomCode}")
+    public SignalingMessage relaySignalingMessage(
+            @DestinationVariable("roomCode") String roomCode, // 明确指定参数名
+            SignalingMessage message
+    ) {
+        // 可以在这里记录日志，如记录哪个房间收到了什么类型的信令
+        System.out.println("房间 " + roomCode + " 收到信令: " + message.getType());
+        return message;
+    }
+
 
 }

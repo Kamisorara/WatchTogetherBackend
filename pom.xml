@@ -21,6 +21,7 @@
     <properties>
         <!-- 默认环境配置 -->
         <environment>dev</environment>
+        <spring.version>3.3.5</spring.version>
         <java.version>17</java.version>
         <mybatis.plus.version>3.5.9</mybatis.plus.version>
         <fastjson2.version>2.0.25</fastjson2.version>
@@ -33,6 +34,7 @@
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <jaxb-impl.version>2.3.1</jaxb-impl.version>
         <jaxb-core.version>2.3.0.1</jaxb-core.version>
+        <junit.version>5.10.0</junit.version>
     </properties>
 
     <dependencyManagement>
@@ -41,7 +43,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.3.5</version>
+                <version>${spring.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -152,6 +154,28 @@
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-core</artifactId>
                 <version>${jaxb-core.version}</version>
+            </dependency>
+
+            <!-- JUnit 5  -->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- Spring Boot test -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring.version}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.junit.vintage</groupId>
+                        <artifactId>junit-vintage-engine</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
