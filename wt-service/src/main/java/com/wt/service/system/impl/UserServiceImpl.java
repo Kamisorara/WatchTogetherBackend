@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Long getUserIdFromServerletRequest(HttpServletRequest request) throws Exception {
         // 获取token
-        String token = request.getHeader("token");
+        String token = request.getHeader("Authorization");
         Claims claims = JWTUtil.parseJWT(token);
         String userId = claims.get("sub").toString();
         return Long.parseLong(userId);

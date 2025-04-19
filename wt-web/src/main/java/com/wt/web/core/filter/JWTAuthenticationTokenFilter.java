@@ -30,7 +30,7 @@ public class JWTAuthenticationTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         response.setCharacterEncoding("UTF-8");
-        String token = request.getHeader("token");
+        String token = request.getHeader("Authorization");
         if (StringUtils.isEmpty(token)) {
             filterChain.doFilter(request, response);
             return;
