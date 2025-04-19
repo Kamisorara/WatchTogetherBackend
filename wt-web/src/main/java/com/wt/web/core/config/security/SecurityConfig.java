@@ -27,12 +27,6 @@ public class SecurityConfig {
     private ExceptionHandler exceptionHandler;
 
     @Resource
-    private LoginFailureHandler loginFailureHandler;
-
-    @Resource
-    private LoginSuccessHandler loginSuccessHandler;
-
-    @Resource
     private JWTAuthenticationTokenFilter jwtAuthenticationTokenFilter;
 
     @Value("${cors.allowedOrigins}")
@@ -49,14 +43,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth ->
-                auth.requestMatchers("/api/sys-test/**", "/api/wt-test/**", "/api/sys/register", "/websocket/**")
+                auth.requestMatchers("/api/sys-test/**", "/api/wt-test/**", "/api/sys/register", "/websocket/**", "/api/sys/login")
                         .permitAll().anyRequest().authenticated());
 
-        http.formLogin(login ->
-                login.loginPage("/api/sys/login")
-                        .successHandler(loginSuccessHandler)
-                        .failureHandler(loginFailureHandler)
-        );
+        // 弃用security登录接口
+//        http.formLogin(login ->
+//                login.loginPage("/api/sys/login")
+//                        .successHandler(loginSuccessHandler)
+//                        .failureHandler(loginFailureHandler)
+//        );
 
         http.logout(logout ->
                 logout.logoutUrl("api/sys/logout")).csrf().disable();

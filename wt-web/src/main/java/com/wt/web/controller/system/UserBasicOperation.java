@@ -28,12 +28,26 @@ public class UserBasicOperation {
      * @return
      */
     @PostMapping("/login")
-    public RestBean login(HttpServletRequest request) {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
+    public RestBean login(HttpServletRequest request,
+                          @RequestBody(required = false) SysUser loginUser,
+                          @RequestParam(name = "username", required = false) String username,
+                          @RequestParam(name = "password", required = false) String password) {
         SysUser user = new SysUser();
-        user.setUserName(username);
-        user.setUserPassword(password);
+
+        // 优先使用JSON请求中的数据
+        if (loginUser != null && loginUser.getUserName() != null) {
+            user = loginUser;
+        } else if (username != null && password != null) {
+            // 其次使用 RequestParam
+            user.setUserName(username);
+            user.setUserPassword(password);
+        } else {
+            // 最后尝试从request中获取参数 兼容原有方式
+            username = request.getParameter("username");
+            password = request.getParameter("password");
+            user.setUserName(username);
+            user.setUserPassword(password);
+        }
         // 登录操作
         return loginService.login(user);
     }

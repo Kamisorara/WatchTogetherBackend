@@ -1,5 +1,6 @@
 package com.wt.service.system.impl;
 
+import com.wt.common.utils.JWTUtil;
 import com.wt.common.utils.RedisCache;
 import com.wt.dao.mapper.UserMapper;
 import com.wt.dao.mapper.UserRoleMapper;
@@ -18,6 +19,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @Slf4j
 public class LoginServiceImpl implements LoginService {
@@ -35,10 +39,41 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public RestBean login(SysUser user) {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(user.getUserName(), user.getUserPassword());
-        authenticationManager.authenticate(authenticationToken);
-        return RestBean.success();
+        try {
+            // 创建认证令牌
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(user.getUserName(), user.getUserPassword());
+
+            // 执行认证
+            Authentication authentication = authenticationManager.authenticate(authenticationToken);
+
+            // 获取认证成功的用户信息
+            LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+            SysUser authenticatedUser = loginUser.getUser();
+
+            // 检查用户状态
+            if (authenticatedUser.getUserStatus().equals("1")) {
+                return RestBean.error(304, "该账户已被禁用");
+            }
+
+            // 生成JWT令牌
+            String userId = authenticatedUser.getId().toString();
+            String jwt = JWTUtil.createJWT(userId);
+
+            // 将用户信息存入Redis
+            redisCache.setCacheObject("login:" + userId, loginUser);
+
+            // 返回JWT和必要信息
+            Map<String, Object> map = new HashMap<>();
+            map.put("token", jwt);
+
+            log.info("id:{}用户登录成功", userId);
+            return RestBean.success(map);
+
+        } catch (Exception e) {
+            log.info("登录失败: {}", e.getMessage());
+            return RestBean.error(400, "账号或密码错误");
+        }
     }
 
     @Override
