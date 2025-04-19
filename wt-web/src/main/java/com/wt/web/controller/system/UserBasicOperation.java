@@ -11,6 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/sys")
 public class UserBasicOperation {
@@ -22,9 +24,12 @@ public class UserBasicOperation {
     private FastDFSService fastDFSService;
 
     /**
-     * 登录
+     * 登录 (支持JSON格式、表单提交和URL参数) 为了兼容两个屎山前端
      *
      * @param request
+     * @param loginUser
+     * @param username
+     * @param password
      * @return
      */
     @PostMapping("/login")
@@ -53,17 +58,47 @@ public class UserBasicOperation {
     }
 
     /**
-     * 注册
+     * 注册 (支持JSON格式、表单提交和URL参数) 为了兼容两个屎山前端
      *
      * @param request
+     * @param registerBody
+     * @param usernameParam
+     * @param passwordParam
+     * @param passwordRepeatParam
+     * @param emailParam
      * @return
      */
     @PostMapping("/register")
-    public RestBean register(HttpServletRequest request) {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        String passwordRepeat = request.getParameter("passwordRepeat");
-        String email = request.getParameter("email");
+    public RestBean register(HttpServletRequest request,
+                             @RequestBody(required = false) Map<String, String> registerBody,
+                             @RequestParam(name = "username", required = false) String usernameParam,
+                             @RequestParam(name = "password", required = false) String passwordParam,
+                             @RequestParam(name = "passwordRepeat", required = false) String passwordRepeatParam,
+                             @RequestParam(name = "email", required = false) String emailParam) {
+        String username;
+        String password;
+        String passwordRepeat;
+        String email;
+
+        // 优先使用JSON request body
+        if (registerBody != null) {
+            username = registerBody.get("username");
+            password = registerBody.get("password");
+            passwordRepeat = registerBody.get("passwordRepeat");
+            email = registerBody.get("email");
+        } else if (usernameParam != null) {
+            // 其次使用RequestParam
+            username = usernameParam;
+            password = passwordParam;
+            passwordRepeat = passwordRepeatParam;
+            email = emailParam;
+        } else {
+            // 最后从request中获取
+            username = request.getParameter("username");
+            password = request.getParameter("password");
+            passwordRepeat = request.getParameter("passwordRepeat");
+            email = request.getParameter("email");
+        }
         if (StringUtils.isEmpty(username) ||
                 StringUtils.isEmpty(password) ||
                 StringUtils.isEmpty(passwordRepeat) ||
