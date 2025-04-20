@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -46,15 +47,23 @@ public class RoomController {
     }
 
     /**
-     * 加入房间
+     * 加入房间 为了兼容屎山
      *
      * @param request
      * @return
      * @throws Exception
      */
     @PostMapping("/join")
-    public RestBean joinRoom(HttpServletRequest request) throws Exception {
-        String roomCode = request.getParameter("roomCode");
+    public RestBean joinRoom(HttpServletRequest request,
+                             @RequestBody(required = false) Map<String, String> requestMap) throws Exception {
+        String roomCode;
+        // 优先使用JSON请求中的数据
+        if (requestMap != null) {
+            roomCode = requestMap.get("roomCode");
+        } else {
+            // 其次使用请求中的数据
+            roomCode = request.getParameter("roomCode");
+        }
         if (!roomService.roomExists(roomCode)) {
             return RestBean.error(400, "房间不存在，请输入正确的房间号");
         } else {
