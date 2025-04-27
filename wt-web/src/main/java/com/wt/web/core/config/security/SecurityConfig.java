@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -44,18 +45,14 @@ public class SecurityConfig {
                 auth.requestMatchers("/api/sys-test/**", "/api/wt-test/**", "/api/sys/register", "/websocket/**", "/api/sys/login")
                         .permitAll().anyRequest().authenticated());
 
-        // 弃用security登录接口
-//        http.formLogin(login ->
-//                login.loginPage("/api/sys/login")
-//                        .successHandler(loginSuccessHandler)
-//                        .failureHandler(loginFailureHandler)
-//        );
-
         http.logout(logout ->
-                logout.logoutUrl("api/sys/logout")).csrf().disable();
+                logout.logoutUrl("api/sys/logout"));
+
+        // 使用新的Lambda风格API替换废弃的csrf()和cors()
+        http.csrf(AbstractHttpConfigurer::disable);
         http.exceptionHandling(exception -> exception.authenticationEntryPoint(exceptionHandler));
 
-        http.cors().configurationSource(corsConfigurationSource());
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         // add jwt
         http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
@@ -78,7 +75,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // 使用addAllowedOriginPattern代替addAllowedOrigin解决通配符问题
-        configuration.addAllowedOriginPattern("*");
+        configuration.addAllowedOriginPattern(allowedOrigins);
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true); // 允许携带凭证
