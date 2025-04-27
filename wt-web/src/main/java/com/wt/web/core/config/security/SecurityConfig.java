@@ -2,8 +2,6 @@ package com.wt.web.core.config.security;
 
 import com.wt.web.core.filter.JWTAuthenticationTokenFilter;
 import com.wt.web.core.handler.ExceptionHandler;
-import com.wt.web.core.handler.LoginFailureHandler;
-import com.wt.web.core.handler.LoginSuccessHandler;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -79,7 +77,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin(allowedOrigins);
+        // 使用addAllowedOriginPattern代替addAllowedOrigin解决通配符问题
+        configuration.addAllowedOriginPattern("*");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true); // 允许携带凭证
