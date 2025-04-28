@@ -3,6 +3,7 @@ package com.wt.web.controller.system;
 import com.wt.entity.resp.RestBean;
 import com.wt.entity.system.SysUser;
 import com.wt.service.fastdfs.FastDFSService;
+import com.wt.service.minio.MinioService;
 import com.wt.service.system.LoginService;
 import com.wt.service.system.UserService;
 import io.micrometer.common.util.StringUtils;
@@ -22,6 +23,8 @@ public class UserBasicOperation {
     private UserService userService;
     @Resource
     private FastDFSService fastDFSService;
+    @Resource
+    private MinioService minioService;
 
     /**
      * 登录 (支持JSON格式、表单提交和URL参数) 为了兼容两个屎山前端
@@ -133,12 +136,22 @@ public class UserBasicOperation {
     }
 
 
+//    /**
+//     * FastDFS上传文件测试
+//     */
+//    @PostMapping("/fastdfs-upload")
+//    public RestBean fastdfsUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws Exception {
+//        String resultUrl = fastDFSService.uploadImg(file);
+//        userService.updateUserAvatarByToken(request, resultUrl);
+//        return RestBean.success("头像更新成功");
+//    }
+
     /**
-     * FastDFS上传文件测试
+     * MinIO上传头像
      */
-    @PostMapping("/fastdfs-upload")
-    public RestBean fastdfsUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws Exception {
-        String resultUrl = fastDFSService.uploadImg(file);
+    @PostMapping("/minio-upload")
+    public RestBean minioUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws Exception {
+        String resultUrl = minioService.uploadImg(file);
         userService.updateUserAvatarByToken(request, resultUrl);
         return RestBean.success("头像更新成功");
     }

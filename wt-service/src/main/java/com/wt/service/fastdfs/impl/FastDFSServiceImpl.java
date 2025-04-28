@@ -3,6 +3,7 @@ package com.wt.service.fastdfs.impl;
 import com.wt.service.fastdfs.FastDFSService;
 import com.wt.service.helper.FastDFSClient;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,6 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class FastDFSServiceImpl implements FastDFSService {
     @Resource
     private FastDFSClient fastDFSClient;
+
+    @Value("${fdfs.web-server-url}")
+    private String webUrl;
 
     @Override
     public String uploadImg(MultipartFile file) throws Exception {
@@ -21,6 +25,6 @@ public class FastDFSServiceImpl implements FastDFSService {
         // 获取文件大小
         long size = file.getSize();
         String urlTrail = fastDFSClient.uploadFile(bytes, size, suffix);
-        return "http://192.168.11.130:8080/" + urlTrail;
+        return webUrl + urlTrail;
     }
 }

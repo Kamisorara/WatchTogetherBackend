@@ -35,6 +35,8 @@
         <jaxb-impl.version>2.3.1</jaxb-impl.version>
         <jaxb-core.version>2.3.0.1</jaxb-core.version>
         <junit.version>5.10.0</junit.version>
+        <minio.verison>8.5.3</minio.verison>
+        <commons-io.version>2.11.0</commons-io.version>
     </properties>
 
     <dependencyManagement>
@@ -132,6 +134,17 @@
                         <artifactId>spring-boot-starter-logging</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <!-- minio -->
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio.verison}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
             </dependency>
             <!-- Swagger -->
             <dependency>
