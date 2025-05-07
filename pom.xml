@@ -75,6 +75,12 @@
                 <artifactId>wt-web</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <!-- OAuth2 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-oauth2-client</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
             <!-- MYSQL -->
             <dependency>
                 <groupId>com.mysql</groupId>
