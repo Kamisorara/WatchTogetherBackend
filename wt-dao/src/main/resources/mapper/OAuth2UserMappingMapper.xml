@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wt.dao.mapper.OAuth2UserMappingMapper">
+
+    <resultMap id="BaseResultMap" type="com.wt.entity.system.OAuth2UserMapping">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="provider" property="provider"/>
+        <result column="provider_user_id" property="providerUserId"/>
+        <result column="created_time" property="createdTime"/>
+    </resultMap>
+
+    <!-- 查询第三方授权登录映射 -->
+    <select id="selectByProviderAndProviderId" resultMap="BaseResultMap">
+        SELECT id,
+               user_id,
+               provider,
+               provider_user_id,
+               created_time
+        FROM oauth2_user_mapping
+        WHERE provider = #{provider}
+          AND provider_user_id = #{providerUserId}
+    </select>
+
+</mapper>

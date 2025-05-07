@@ -12,15 +12,23 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+/**
+ * SpringSecurity配置
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Resource
+    private RedisAuthorizationRequestRepository redisAuthorizationRequestRepository;
+    
 
     @Resource
     private ExceptionHandler exceptionHandler;
@@ -40,21 +48,33 @@ public class SecurityConfig {
      * Security核心配置
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth ->
-                auth.requestMatchers("/api/sys-test/**", "/api/wt-test/**", "/api/sys/register", "/websocket/**", "/api/sys/login")
-                        .permitAll().anyRequest().authenticated());
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthorizationRequestRepository authorizationRequestRepository) throws Exception {
+        http.authorizeHttpRequests(auth -> auth.requestMatchers("/api/sys-test/**",
+                "/api/wt-test/**",
+                "/api/sys/register",
+                "/websocket/**",
+                "/api/sys/login",
+                "/api/oauth2/**",
+                "/login/oauth2/**",
+                "/oauth2/authorization/**").permitAll().anyRequest().authenticated());
 
-        http.logout(logout ->
-                logout.logoutUrl("api/sys/logout"));
+//        // OAuth2 登录配置
+//        http.oauth2Login(oauth2 -> oauth2
+//                .loginPage("/api/oauth2/login")
+//                .authorizationEndpoint(authorization -> authorization
+//                        .authorizationRequestRepository(redisAuthorizationRequestRepository))
+//                .successHandler(oAuth2LoginSuccessHandler)
+//                .failureHandler(oAuth2LoginFailureHandler)
+//        );
 
-        // 使用新的Lambda风格API替换废弃的csrf()和cors()
+        http.logout(logout -> logout.logoutUrl("api/sys/logout"));
+
         http.csrf(AbstractHttpConfigurer::disable);
         http.exceptionHandling(exception -> exception.authenticationEntryPoint(exceptionHandler));
 
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
-        // add jwt
+        // JWT过滤
         http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -78,7 +98,7 @@ public class SecurityConfig {
         configuration.addAllowedOriginPattern(allowedOrigins);
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
-        configuration.setAllowCredentials(true); // 允许携带凭证
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
