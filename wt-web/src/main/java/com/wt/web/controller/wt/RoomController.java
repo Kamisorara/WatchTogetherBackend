@@ -7,7 +7,9 @@ import com.wt.entity.resp.UserInfoResp;
 import com.wt.entity.wt.AudioMessage;
 import com.wt.entity.wt.SignalingMessage;
 import com.wt.entity.wt.VideoControlMessage;
+import com.wt.entity.wt.WtMovies;
 import com.wt.service.system.UserService;
+import com.wt.service.wt.MovieService;
 import com.wt.service.wt.RoomService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +20,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -32,6 +35,43 @@ public class RoomController {
     private RoomService roomService;
     @Resource
     private UserService userService;
+    @Resource
+    private MovieService movieService;
+
+    /**
+     * 获取电影列表
+     */
+    @GetMapping("/get-movie-list")
+    public RestBean getMovieList() {
+        try {
+            List<WtMovies> movieList = movieService.getMovieList();
+            return RestBean.success(movieList);
+        } catch (Exception e) {
+            log.error("获取电影列表失败", e);
+            return RestBean.error(500, "获取电影列表失败");
+        }
+    }
+
+    /**
+     * 上传电影
+     */
+    @PostMapping("/movie-upload")
+    public RestBean uploadMovie(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            HttpServletRequest request) {
+        try {
+            // 获取当前用户ID
+            Long userId = userService.getUserIdFromServerletRequest(request);
+            // 上传电影
+            WtMovies movie = movieService.uploadMovie(file, title, description, userId);
+            return RestBean.success(movie);
+        } catch (Exception e) {
+            log.error("上传电影失败", e);
+            return RestBean.error(500, "上传电影失败: " + e.getMessage());
+        }
+    }
 
     /**
      * 创建房间
@@ -54,8 +94,7 @@ public class RoomController {
      * @throws Exception
      */
     @PostMapping("/join")
-    public RestBean joinRoom(HttpServletRequest request,
-                             @RequestBody(required = false) Map<String, String> requestMap) throws Exception {
+    public RestBean joinRoom(HttpServletRequest request, @RequestBody(required = false) Map<String, String> requestMap) throws Exception {
         String roomCode;
         // 优先使用JSON请求中的数据
         if (requestMap != null) {
@@ -149,10 +188,8 @@ public class RoomController {
      */
     @MessageMapping("/rtc-signaling/{roomCode}")
     @SendTo("/topic/rtc-signaling/{roomCode}")
-    public SignalingMessage relaySignalingMessage(
-            @DestinationVariable("roomCode") String roomCode, // 明确指定参数名
-            SignalingMessage message
-    ) {
+    public SignalingMessage relaySignalingMessage(@DestinationVariable("roomCode") String roomCode, // 明确指定参数名
+                                                  SignalingMessage message) {
         // 可以在这里记录日志，如记录哪个房间收到了什么类型的信令
         System.out.println("房间 " + roomCode + " 收到信令: " + message.getType());
         return message;
