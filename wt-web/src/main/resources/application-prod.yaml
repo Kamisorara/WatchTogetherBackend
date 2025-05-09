@@ -1,5 +1,9 @@
 server:
   port: 8081
+  tomcat:
+    connection-timeout: 180000  # 连接超时时间(毫秒)
+    max-http-form-post-size: 2147483647  # 表单提交大小限制
+    max-swallow-size: 2147483647  # 请求体最大大小
 
 cors:
   allowedOrigins: "http://localhost:5000"
@@ -25,19 +29,19 @@ spring:
   # servlet配置
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: 2048MB
+      max-request-size: 2048MB
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysql:63306/watch_together?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
+    url: jdbc:mysql://mysql:3306/watch_together?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
     username: root
     password: 123456
   # redis配置
   data:
     redis:
       host: redis
-      port: 63790
+      port: 6379
       password: 123456
       database: 0
       connect-timeout: 60s
@@ -67,8 +71,8 @@ fdfs:
     width: 150
     height: 150
   tracker-list: #TrackerList参数,支持多个
-    -
-  web-server-url:
+    - minio:62122
+  web-server-url: https://www.atlaskk.me
 
 # MinIO配置
 minio:
