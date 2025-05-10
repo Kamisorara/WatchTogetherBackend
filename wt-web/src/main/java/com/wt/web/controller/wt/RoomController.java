@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wt.entity.resp.RestBean;
 import com.wt.entity.resp.UserInfoResp;
-import com.wt.entity.wt.AudioMessage;
-import com.wt.entity.wt.SignalingMessage;
-import com.wt.entity.wt.VideoControlMessage;
-import com.wt.entity.wt.WtMovies;
+import com.wt.entity.wt.*;
 import com.wt.service.system.UserService;
 import com.wt.service.wt.MovieService;
 import com.wt.service.wt.RoomService;
@@ -18,6 +15,7 @@ import org.apache.tomcat.util.codec.binary.Base64;
 import org.apache.tomcat.util.codec.binary.StringUtils;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,11 +54,7 @@ public class RoomController {
      * 上传电影
      */
     @PostMapping("/movie-upload")
-    public RestBean uploadMovie(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("title") String title,
-            @RequestParam("description") String description,
-            HttpServletRequest request) {
+    public RestBean uploadMovie(@RequestParam("file") MultipartFile file, @RequestParam("title") String title, @RequestParam("description") String description, HttpServletRequest request) {
         try {
             // 获取当前用户ID
             Long userId = userService.getUserIdFromServerletRequest(request);
@@ -134,7 +128,30 @@ public class RoomController {
      */
     @MessageMapping("/video-control/{roomCode}")
     @SendTo("/topic/video-sync/{roomCode}")
-    public VideoControlMessage handleVideoControl(VideoControlMessage message) throws Exception {
+    public VideoControlMessage handleVideoControl(@Payload VideoControlMessage message) throws Exception {
+        return message;
+    }
+
+    /**
+     * 处理电影选择
+     */
+    @MessageMapping("/movie-select/{roomCode}")
+    @SendTo("/topic/movie-select/{roomCode}")
+    public MovieSelectMessage handleMovieSelection(@DestinationVariable("roomCode") String roomCode, @Payload MovieSelectMessage message) {
+        log.info("房间 {} 选择了电影: {}", roomCode, message.getTitle());
+
+        if (message.getMovieId() != null) {
+            try {
+                WtMovies movie = movieService.getMovieById(message.getMovieId());
+                if (movie != null && (message.getTitle() == null || message.getVideoUrl() == null)) {
+                    message.setTitle(movie.getTitle());
+                    message.setVideoUrl(movie.getVideoUrl());
+                }
+            } catch (Exception e) {
+                log.error("获取电影详情失败", e);
+            }
+        }
+
         return message;
     }
 
@@ -143,7 +160,7 @@ public class RoomController {
      */
     @MessageMapping("/audio/{roomCode}")
     @SendTo("/topic/audio-sync/{roomCode}")
-    public AudioMessage handleAudio(@DestinationVariable String roomCode, String message) {
+    public AudioMessage handleAudio(@DestinationVariable("roomCode") String roomCode, String message) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             AudioMessage audioMessage = objectMapper.readValue(message, AudioMessage.class);
@@ -188,12 +205,9 @@ public class RoomController {
      */
     @MessageMapping("/rtc-signaling/{roomCode}")
     @SendTo("/topic/rtc-signaling/{roomCode}")
-    public SignalingMessage relaySignalingMessage(@DestinationVariable("roomCode") String roomCode, // 明确指定参数名
-                                                  SignalingMessage message) {
-        // 可以在这里记录日志，如记录哪个房间收到了什么类型的信令
+    public SignalingMessage relaySignalingMessage(@DestinationVariable("roomCode") String roomCode, @Payload SignalingMessage message) {
         System.out.println("房间 " + roomCode + " 收到信令: " + message.getType());
         return message;
     }
-
 
 }

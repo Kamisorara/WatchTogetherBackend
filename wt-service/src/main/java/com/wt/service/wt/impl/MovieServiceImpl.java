@@ -55,4 +55,9 @@ public class MovieServiceImpl implements MovieService {
             throw e;
         }
     }
+
+    @Override
+    public WtMovies getMovieById(Long movieId) {
+        return wtMoviesMapper.selectMovieById(movieId);
+    }
 }

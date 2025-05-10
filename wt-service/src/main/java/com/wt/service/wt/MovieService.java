@@ -11,4 +11,7 @@ public interface MovieService {
 
     // 上传电影
     WtMovies uploadMovie(MultipartFile file, String title, String description, Long uploaderId) throws Exception;
+
+    // 根据ID获取电影
+    WtMovies getMovieById(Long movieId);
 }

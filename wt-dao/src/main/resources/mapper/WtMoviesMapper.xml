@@ -13,4 +13,10 @@
         WHERE uploader_id = #{uploaderId}
         ORDER BY create_time DESC
     </select>
+
+    <select id="selectMovieById" resultType="com.wt.entity.wt.WtMovies">
+        SELECT *
+        FROM wt_movies
+        WHERE id = #{id}
+    </select>
 </mapper>
