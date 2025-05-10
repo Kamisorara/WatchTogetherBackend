@@ -1,0 +1,84 @@
+services:
+
+  wt-backend-service:
+    image: openjdk:17-jdk
+    container_name: wt-backend-app
+    restart: always
+    volumes:
+      - ./wt-backend/watchTogether_backend.jar:/app/app.jar
+      - /home/atlaskk/watchTogetherServerFiles/watchTogetherLogs:/logs
+      - /etc/localtime:/etc/localtime:ro
+    command: [ "java", "-Duser.timezone=Asia/Shanghai", "-jar", "/app/app.jar" ]
+    depends_on:
+      - mysql
+      - redis
+      - minio
+    networks:
+      - app-network
+
+  mysql:
+    image: mysql:8.0.24
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Wt_Prod!114514JsD#
+      MYSQL_DATABASE: watch
+      MYSQL_USER: watch
+      MYSQL_PASSWORD: 123456
+    volumes:
+      - /home/atlaskk/watchTogetherServerFiles/mysql/data:/var/lib/mysql
+      - /home/atlaskk/watchTogetherServerFiles/mysql/conf:/etc/mysql/conf.d
+      - /home/atlaskk/watchTogetherServerFiles/mysql/init:/docker-entrypoint-initdb.d
+      - /etc/localtime:/etc/localtime:ro
+      # - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+
+  redis:
+    image: redis:latest
+    container_name: redis-cache
+    restart: always
+    volumes:
+      - /home/atlaskk/watchTogetherServerFiles/redis/conf/redis.conf:/etc/redis/redis.conf
+      - /home/atlaskk/watchTogetherServerFiles/redis/data:/data
+      - /etc/localtime:/etc/localtime:ro
+    command: redis-server --requirepass Wt_Prod!114514JsD#
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./wt-frontend/dist:/usr/share/nginx/html
+      - ./wt-frontend/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      #      - ./wt-frontend/nginx/ssl:/etc/nginx/ssl
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - wt-backend-service
+    networks:
+      - app-network
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: rakamiso575
+      MINIO_ROOT_PASSWORD: KamisoraMinIO
+    volumes:
+      - /home/atlaskk/watchTogetherServerFiles/minio/data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
