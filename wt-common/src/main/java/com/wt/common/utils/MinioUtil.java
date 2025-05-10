@@ -20,25 +20,41 @@ public class MinioUtil {
     @Value("${minio.access-key}")
     private String accessKey;
 
+    @Value("${minio.public-endpoint}")
+    private String publicEndpoint;
+
     @Value("${minio.secret-key}")
     private String secretKey;
 
     @Value("${minio.bucket}")
     private String bucketName;
 
-    private MinioClient minioClient;
+    private MinioClient internalClient;  // 用于上传/下载操作
+    private MinioClient publicClient;    // 用于生成公网访问URL
 
     @PostConstruct
     public void init() {
-        minioClient = MinioClient.builder()
+        // 内网客户端，用于上传下载
+        internalClient = MinioClient.builder()
                 .endpoint(endpoint)
                 .credentials(accessKey, secretKey)
                 .build();
+
+        // 公网客户端，仅用于生成URL
+        if (publicEndpoint != null && !publicEndpoint.isEmpty()) {
+            publicClient = MinioClient.builder()
+                    .endpoint(publicEndpoint)
+                    .credentials(accessKey, secretKey)
+                    .build();
+        } else {
+            publicClient = internalClient;
+        }
+
         try {
-            // 自动创建桶
-            boolean exists = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+            // 检查桶是否存在
+            boolean exists = internalClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
             if (!exists) {
-                minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+                internalClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
             }
         } catch (Exception e) {
             throw new RuntimeException("MinIO 初始化失败", e);
@@ -47,7 +63,7 @@ public class MinioUtil {
 
     // 上传文件
     public void upload(String objectName, InputStream stream, long size, String contentType) throws Exception {
-        minioClient.putObject(
+        internalClient.putObject(
                 PutObjectArgs.builder()
                         .bucket(bucketName)
                         .object(objectName)
@@ -59,7 +75,7 @@ public class MinioUtil {
 
     // 下载文件
     public InputStream download(String objectName) throws Exception {
-        return minioClient.getObject(
+        return internalClient.getObject(
                 GetObjectArgs.builder()
                         .bucket(bucketName)
                         .object(objectName)
@@ -69,7 +85,8 @@ public class MinioUtil {
 
     // 生成预览URL
     public String getObjectUrl(String objectName, int expiresSeconds) throws Exception {
-        return minioClient.getPresignedObjectUrl(
+        // 使用公网客户端生成URL
+        return publicClient.getPresignedObjectUrl(
                 GetPresignedObjectUrlArgs.builder()
                         .method(Method.GET)
                         .bucket(bucketName)
@@ -118,8 +135,8 @@ public class MinioUtil {
             }
 
             // 检查存储桶是否存在
-            if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
-                minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+            if (!internalClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
+                internalClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
                 System.out.println("创建存储桶: " + bucketName);
             }
 
@@ -130,7 +147,7 @@ public class MinioUtil {
             int partSize = 10 * 1024 * 1024; // 10MB 分块大小
 
             // 不再保存响应结果，避免空指针问题
-            minioClient.putObject(
+            internalClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucketName)
                             .object(objectName)
@@ -141,7 +158,7 @@ public class MinioUtil {
 
             // 上传后验证文件是否存在
             try {
-                StatObjectResponse stat = minioClient.statObject(
+                StatObjectResponse stat = internalClient.statObject(
                         StatObjectArgs.builder()
                                 .bucket(bucketName)
                                 .object(objectName)
