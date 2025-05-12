@@ -109,6 +109,9 @@ public class UserBasicOperation {
         return loginService.logout();
     }
 
+    /**
+     * 从Token中获取用户基本数据
+     */
     @GetMapping("/user-info")
     public RestBean getUserInfo(HttpServletRequest request) throws Exception {
         return RestBean.success(userService.getUserInfoByToken(request));
@@ -125,7 +128,7 @@ public class UserBasicOperation {
 
 
 //    /**
-//     * FastDFS文件上传
+//     * FastDFS上传更改用户头像
 //     */
 //    @PostMapping("/fastdfs-upload")
 //    public RestBean fastdfsUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws Exception {
@@ -146,13 +149,32 @@ public class UserBasicOperation {
 
 
     /**
-     * 更新用户资料
+     * 更新用户资料 兼容屎山
      */
     @PostMapping("/update-userDetailInfo")
     public RestBean updateUserDetailInfo(HttpServletRequest request,
-                                         @RequestParam("userPhone") String userPhone,
-                                         @RequestParam("userSex") String userSex) throws Exception {
-        if (userSex.equals("1") || userSex.equals("0") || userSex.equals("2")) {
+                                         @RequestBody(required = false) Map<String, String> requestBody,
+                                         @RequestParam(name = "userPhone", required = false) String userPhoneParam,
+                                         @RequestParam(name = "userSex", required = false) String userSexParam) throws Exception {
+
+        String userPhone;
+        String userSex;
+
+        // 优先使用JSON请求体
+        if (requestBody != null && !requestBody.isEmpty()) {
+            userPhone = requestBody.get("userPhone");
+            userSex = requestBody.get("userSex");
+        } else if (userPhoneParam != null) {
+            // 其次使用RequestParam
+            userPhone = userPhoneParam;
+            userSex = userSexParam;
+        } else {
+            // 最后从request中获取
+            userPhone = request.getParameter("userPhone");
+            userSex = request.getParameter("userSex");
+        }
+
+        if (userSex != null && (userSex.equals("1") || userSex.equals("0") || userSex.equals("2"))) {
             if (userService.updateUserPhoneAndSexInfo(request, userPhone, userSex)) {
                 return RestBean.success("数据更新成功");
             }
