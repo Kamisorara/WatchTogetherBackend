@@ -141,10 +141,12 @@ public class UserBasicOperation {
      * MinIO上传头像
      */
     @PostMapping("/minio-upload")
-    public RestBean minioUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws Exception {
+    public RestBean minioUpload(@RequestParam("file") MultipartFile file,
+                                HttpServletRequest request) throws Exception {
         String resultUrl = minioService.uploadImg(file);
         userService.updateUserAvatarByToken(request, resultUrl);
-        return RestBean.success("头像更新成功");
+        Map<String, String> avatarInfo = Map.of("url", resultUrl);
+        return RestBean.success(avatarInfo);
     }
 
 
