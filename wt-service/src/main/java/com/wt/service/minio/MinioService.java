@@ -24,7 +24,7 @@ public class MinioService {
         minioUtil.upload(objectName, file.getInputStream(), file.getSize(), file.getContentType());
 
         // 生成预签名URL，一个月有效期
-        return minioUtil.getObjectUrl(objectName, 60 * 60 * 24 * 30);
+        return minioUtil.getObjectUrl(objectName, 60 * 60 * 24 * 6);
     }
 
     public String uploadVideo(MultipartFile file) throws Exception {
