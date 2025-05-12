@@ -82,10 +82,6 @@ public class RoomController {
 
     /**
      * 加入房间 为了兼容屎山
-     *
-     * @param request
-     * @return
-     * @throws Exception
      */
     @PostMapping("/join")
     public RestBean joinRoom(HttpServletRequest request, @RequestBody(required = false) Map<String, String> requestMap) throws Exception {
@@ -172,26 +168,26 @@ public class RoomController {
                 try {
                     decodedAudio = Base64.decodeBase64(base64String);
                 } catch (IllegalArgumentException e) {
-                    log.error("Invalid Base64 string: {}", base64String, e);
-                    log.error("Base64 String bytes: {}", StringUtils.newStringUtf8(base64String.getBytes()));
+                    log.error("base64音频数据发生错误: {}", base64String, e);
+                    log.error("Base64音频数据串: {}", StringUtils.newStringUtf8(base64String.getBytes()));
                     return null;
                 }
             } else {
-                log.warn("audioData is null or empty for message: {}", message);
+                log.warn("音频数据为空: {}", message);
                 return null;
             }
 
             if (decodedAudio != null) {
                 String audioString = new String(decodedAudio, StandardCharsets.UTF_8);
                 audioMessage.setAudioData(audioString);
-                log.info("Received audio data length: {}", decodedAudio.length);
+                log.info("接收到的音频数据长度: {}", decodedAudio.length);
             } else {
                 return null;
             }
 
             return audioMessage;
         } catch (JsonProcessingException e) {
-            log.error("Error processing audio message", e);
+            log.error("处理音频时发生错误", e);
             return null;
         }
     }
