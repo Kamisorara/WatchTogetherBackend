@@ -20,6 +20,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 处理登录成功的请求
+ */
 @Component
 @Slf4j
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {

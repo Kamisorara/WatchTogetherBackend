@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * 房间内操作相关Controller
+ */
 @RestController
 @RequestMapping("/room")
 @Slf4j

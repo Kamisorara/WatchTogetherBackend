@@ -19,6 +19,9 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * WebSocket握手拦截器
+ */
 @Component
 public class JwtHandshakeInterceptor implements ChannelInterceptor, HandshakeInterceptor {
     @Resource

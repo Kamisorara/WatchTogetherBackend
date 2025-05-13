@@ -12,6 +12,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+/**
+ * 处理登录失败的请求
+ */
 @Component
 @Slf4j
 public class LoginFailureHandler implements AuthenticationFailureHandler {

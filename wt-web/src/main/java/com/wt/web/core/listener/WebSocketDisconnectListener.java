@@ -13,6 +13,9 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.Map;
 
+/**
+ * WebSocket断开连接监听器
+ */
 @Component
 @Slf4j
 public class WebSocketDisconnectListener implements ApplicationListener<SessionDisconnectEvent> {

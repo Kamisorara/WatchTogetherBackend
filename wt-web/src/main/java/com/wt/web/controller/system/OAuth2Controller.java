@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * OAuth2 授权登录Controller
+ */
 @RestController
 @RequestMapping("/api/oauth2")
 @Slf4j

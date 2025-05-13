@@ -12,6 +12,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+/**
+ * 处理未授权的请求
+ */
 @Component
 public class ExceptionHandler implements AuthenticationEntryPoint {
     @Override
