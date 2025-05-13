@@ -1,16 +1,20 @@
 package com.wt.service.wt.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wt.common.utils.RedisCache;
 import com.wt.dao.mapper.UserMapper;
 import com.wt.entity.resp.UserInfoResp;
+import com.wt.entity.wt.MovieSelectMessage;
 import com.wt.service.wt.RoomService;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
+@Slf4j
 public class RoomServiceImpl implements RoomService {
 
     @Resource
@@ -18,7 +22,11 @@ public class RoomServiceImpl implements RoomService {
     @Resource
     private UserMapper userMapper;
 
+    // 房间前缀
     private static final String ROOM_PREFIX = "room_";
+
+    // 房间电影状态
+    private static final String ROOM_MOVIE_KEY_PREFIX = "room:movie:";
 
     @Override
     public String createRoom(String userId) {
@@ -110,5 +118,32 @@ public class RoomServiceImpl implements RoomService {
         } catch (Exception e) {
             throw new RuntimeException("无法删除房间");
         }
+    }
+
+    @Override
+    public void saveRoomMovieState(String roomCode, MovieSelectMessage movieState) {
+        try {
+            String key = ROOM_MOVIE_KEY_PREFIX + roomCode;
+            // 将电影状态对象转换为 JSON串
+            String movieJson = new ObjectMapper().writeValueAsString(movieState);
+            redisCache.setCacheObject(key, movieJson);
+
+        } catch (Exception e) {
+            log.error("保存房间电影状态失败", e);
+        }
+    }
+
+    @Override
+    public MovieSelectMessage getRoomMovieState(String roomCode) {
+        try {
+            String key = ROOM_MOVIE_KEY_PREFIX + roomCode;
+            String movieJson = redisCache.getCacheObject(key);
+            if (movieJson != null) {
+                return new ObjectMapper().readValue(movieJson, MovieSelectMessage.class);
+            }
+        } catch (Exception e) {
+            log.error("获取房间电影状态失败", e);
+        }
+        return null;
     }
 }

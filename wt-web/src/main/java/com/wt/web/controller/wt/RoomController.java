@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,8 +73,6 @@ public class RoomController {
 
     /**
      * 创建房间
-     *
-     * @return
      */
     @PostMapping("/create")
     public RestBean createRoom(HttpServletRequest request) throws Exception {
@@ -84,7 +83,7 @@ public class RoomController {
     }
 
     /**
-     * 加入房间 为了兼容屎山
+     * 加入房间 兼容屎山前端
      */
     @PostMapping("/join")
     public RestBean joinRoom(HttpServletRequest request, @RequestBody(required = false) Map<String, String> requestMap) throws Exception {
@@ -102,7 +101,15 @@ public class RoomController {
             Long userId = userService.getUserIdFromServerletRequest(request);
             roomService.addUserToRoom(roomCode, userId.toString());
             log.info("id:{}用户加入房间{}", userId, roomCode);
-            return RestBean.success(userId + "加入" + roomCode + "房间");
+
+            // 获取当前房间电影状态
+            MovieSelectMessage currentMovie = roomService.getRoomMovieState(roomCode);
+
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("message", userId + "加入" + roomCode + "房间");
+            responseMap.put("currentMovie", currentMovie); // 即使是null也不会有问题
+
+            return RestBean.success(responseMap);
         }
     }
 
@@ -150,6 +157,9 @@ public class RoomController {
                 log.error("获取电影详情失败", e);
             }
         }
+
+        // 保存当前房间的电影状态
+        roomService.saveRoomMovieState(roomCode, message);
 
         return message;
     }

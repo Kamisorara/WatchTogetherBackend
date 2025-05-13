@@ -2,6 +2,7 @@ package com.wt.service.wt;
 
 
 import com.wt.entity.resp.UserInfoResp;
+import com.wt.entity.wt.MovieSelectMessage;
 
 import java.util.List;
 import java.util.Set;
@@ -31,4 +32,10 @@ public interface RoomService {
 
     // 删除房间
     void removeRoom(String roomCode);
+
+    // 保存当前房间内电影的状态(电影名称，播放进度，播放状态)
+    void saveRoomMovieState(String roomCode, MovieSelectMessage movieState);
+
+    // 获取当前房间内电影的状态
+    MovieSelectMessage getRoomMovieState(String roomCode);
 }

@@ -58,7 +58,7 @@ public class SecurityConfig {
                 "/login/oauth2/**",
                 "/oauth2/authorization/**").permitAll().anyRequest().authenticated());
 
-//        // OAuth2 登录配置
+//        // OAuth2 登录配置 (已使用自定义接口，弃用springSecurity默认的)
 //        http.oauth2Login(oauth2 -> oauth2
 //                .loginPage("/api/oauth2/login")
 //                .authorizationEndpoint(authorization -> authorization
