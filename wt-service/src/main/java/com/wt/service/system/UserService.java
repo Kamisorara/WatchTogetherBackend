@@ -1,6 +1,7 @@
 package com.wt.service.system;
 
 import com.wt.entity.resp.UserInfoResp;
+import com.wt.entity.system.SysUser;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -25,6 +26,7 @@ public interface UserService {
     // 根据用户Token，获取用户信息
     UserInfoResp getUserInfoByToken(HttpServletRequest request) throws Exception;
 
-    // 更新用户手机号和性别
-    Boolean updateUserPhoneAndSexInfo(HttpServletRequest request, String userPhone, String userSex) throws Exception;
+    // 更新用户数据
+    // 更新用户信息(通用方法)
+    Boolean updateUserInfo(HttpServletRequest request, SysUser userInfo) throws Exception;
 }

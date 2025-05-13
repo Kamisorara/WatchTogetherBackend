@@ -37,10 +37,16 @@
         WHERE su.id = #{userId};
     </select>
 
-    <update id="updateUserDetailInfo">
-        UPDATE sys_user su
-        SET su.user_phone = #{userPhone},
-            su.user_sex   = #{userSex}
-        WHERE su.id = #{userId};
+    <update id="updateUserDetailInfo" parameterType="com.wt.entity.system.SysUser">
+        UPDATE sys_user
+        <set>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="userEmail != null">user_email = #{userEmail},</if>
+            <if test="userPhone != null">user_phone = #{userPhone},</if>
+            <if test="userSex != null">user_sex = #{userSex},</if>
+            <if test="userAvatar != null">user_avatar = #{userAvatar},</if>
+            <if test="userPassword != null">user_password = #{userPassword},</if>
+        </set>
+        WHERE id = #{id}
     </update>
 </mapper>

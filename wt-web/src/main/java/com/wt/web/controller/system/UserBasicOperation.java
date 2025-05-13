@@ -34,10 +34,7 @@ public class UserBasicOperation {
      * 登录 (支持JSON格式、表单提交和URL参数) 为了兼容两个屎山前端
      */
     @PostMapping("/login")
-    public RestBean login(HttpServletRequest request,
-                          @RequestBody(required = false) SysUser loginUser,
-                          @RequestParam(name = "username", required = false) String username,
-                          @RequestParam(name = "password", required = false) String password) {
+    public RestBean login(HttpServletRequest request, @RequestBody(required = false) SysUser loginUser, @RequestParam(name = "username", required = false) String username, @RequestParam(name = "password", required = false) String password) {
         SysUser user = new SysUser();
 
         // 优先使用JSON请求中的数据
@@ -62,12 +59,7 @@ public class UserBasicOperation {
      * 注册 (支持JSON格式、表单提交和URL参数) 为了兼容两个屎山前端
      */
     @PostMapping("/register")
-    public RestBean register(HttpServletRequest request,
-                             @RequestBody(required = false) Map<String, String> registerBody,
-                             @RequestParam(name = "username", required = false) String usernameParam,
-                             @RequestParam(name = "password", required = false) String passwordParam,
-                             @RequestParam(name = "passwordRepeat", required = false) String passwordRepeatParam,
-                             @RequestParam(name = "email", required = false) String emailParam) {
+    public RestBean register(HttpServletRequest request, @RequestBody(required = false) Map<String, String> registerBody, @RequestParam(name = "username", required = false) String usernameParam, @RequestParam(name = "password", required = false) String passwordParam, @RequestParam(name = "passwordRepeat", required = false) String passwordRepeatParam, @RequestParam(name = "email", required = false) String emailParam) {
         String username;
         String password;
         String passwordRepeat;
@@ -92,10 +84,7 @@ public class UserBasicOperation {
             passwordRepeat = request.getParameter("passwordRepeat");
             email = request.getParameter("email");
         }
-        if (StringUtils.isEmpty(username) ||
-                StringUtils.isEmpty(password) ||
-                StringUtils.isEmpty(passwordRepeat) ||
-                StringUtils.isEmpty(email)) {
+        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password) || StringUtils.isEmpty(passwordRepeat) || StringUtils.isEmpty(email)) {
             return RestBean.error(400, "注册失败");
         }
         return loginService.register(username, password, passwordRepeat, email);
@@ -141,46 +130,38 @@ public class UserBasicOperation {
      * MinIO上传头像
      */
     @PostMapping("/minio-upload")
-    public RestBean minioUpload(@RequestParam("file") MultipartFile file,
-                                HttpServletRequest request) throws Exception {
+    public RestBean minioUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws Exception {
         String resultUrl = minioService.uploadImg(file);
         userService.updateUserAvatarByToken(request, resultUrl);
         Map<String, String> avatarInfo = Map.of("url", resultUrl);
         return RestBean.success(avatarInfo);
     }
 
-
     /**
-     * 更新用户资料 兼容屎山
+     * 更新用户资料
      */
     @PostMapping("/update-userDetailInfo")
-    public RestBean updateUserDetailInfo(HttpServletRequest request,
-                                         @RequestBody(required = false) Map<String, String> requestBody,
-                                         @RequestParam(name = "userPhone", required = false) String userPhoneParam,
-                                         @RequestParam(name = "userSex", required = false) String userSexParam) throws Exception {
-
-        String userPhone;
-        String userSex;
-
-        // 优先使用JSON请求体
-        if (requestBody != null && !requestBody.isEmpty()) {
-            userPhone = requestBody.get("userPhone");
-            userSex = requestBody.get("userSex");
-        } else if (userPhoneParam != null) {
-            // 其次使用RequestParam
-            userPhone = userPhoneParam;
-            userSex = userSexParam;
-        } else {
-            // 最后从request中获取
-            userPhone = request.getParameter("userPhone");
-            userSex = request.getParameter("userSex");
-        }
-
-        if (userSex != null && (userSex.equals("1") || userSex.equals("0") || userSex.equals("2"))) {
-            if (userService.updateUserPhoneAndSexInfo(request, userPhone, userSex)) {
+    public RestBean updateUserDetailInfo(HttpServletRequest request, @RequestBody(required = false) SysUser userInfo) throws Exception {
+        // 如果是JSON请求体
+        if (userInfo != null) {
+            if (userService.updateUserInfo(request, userInfo)) {
                 return RestBean.success("数据更新成功");
             }
+            return RestBean.error(400, "数据更新失败");
         }
+
+//        // 兼容旧屎山
+//        String userPhone = request.getParameter("userPhone");
+//        String userSex = request.getParameter("userSex");
+//
+//        if (userSex != null && (userSex.equals("1") || userSex.equals("0") || userSex.equals("2"))) {
+//            SysUser user = new SysUser();
+//            user.setUserPhone(userPhone);
+//            user.setUserSex(userSex);
+//            if (userService.updateUserInfo(request, user)) {
+//                return RestBean.success("数据更新成功");
+//            }
+//        }
         return RestBean.error(400, "数据错误，更新失败");
     }
 

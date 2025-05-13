@@ -3,6 +3,7 @@ package com.wt.service.system.impl;
 import com.wt.common.utils.JWTUtil;
 import com.wt.dao.mapper.UserMapper;
 import com.wt.entity.resp.UserInfoResp;
+import com.wt.entity.system.SysUser;
 import com.wt.service.system.UserService;
 import io.jsonwebtoken.Claims;
 import jakarta.annotation.Resource;
@@ -55,9 +56,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean updateUserPhoneAndSexInfo(HttpServletRequest request, String userPhone, String userSex) throws Exception {
+    public Boolean updateUserInfo(HttpServletRequest request, SysUser userInfo) throws Exception {
         Long userId = getUserIdFromServerletRequest(request);
-        return userMapper.updateUserDetailInfo(userId, userPhone, userSex) > 0;
+        userInfo.setId(userId);  // 设置用户ID
+        return userMapper.updateUserDetailInfo(userInfo) > 0;
     }
 
 }
