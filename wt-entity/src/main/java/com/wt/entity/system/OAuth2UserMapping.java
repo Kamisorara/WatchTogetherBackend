@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 /**
  * 第三方登录用户映射
  *
- * @author AtlasKK
+ * @author Waylon
  */
 
 @Data

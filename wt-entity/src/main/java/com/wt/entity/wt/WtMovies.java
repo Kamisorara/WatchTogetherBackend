@@ -13,8 +13,7 @@ import java.util.Date;
 /**
  * (WtMovies)表实体类
  *
- * @author AtlasKK
- * @since 2025-05-09 20:46:37
+ * @author Waylon
  */
 @EqualsAndHashCode(callSuper = true)
 @Data

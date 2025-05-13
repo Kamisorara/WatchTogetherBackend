@@ -15,8 +15,6 @@ import java.util.UUID;
 
 /**
  * JWT工具类，用于生成和解析JSON Web Token（JWT）
- *
- * @author Kamisora
  */
 @Component
 public class JWTUtil {

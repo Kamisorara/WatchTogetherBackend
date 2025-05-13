@@ -1,9 +1,6 @@
 package com.wt.entity.system;
 
 
-import java.util.Date;
-import java.io.Serializable;
-
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -11,10 +8,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+import java.util.Date;
+
 /**
  * (SysUser)实体类
  *
- * @author AtlasKK
+ * @author Waylon
  */
 @Data
 @NoArgsConstructor

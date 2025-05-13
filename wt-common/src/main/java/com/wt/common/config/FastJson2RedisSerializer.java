@@ -13,7 +13,7 @@ import java.nio.charset.Charset;
 /**
  * Redis使用Fastjson2序列化
  *
- * @author AtlasKK
+ * @author Waylon
  */
 public class FastJson2RedisSerializer<T> implements RedisSerializer<T> {
 
