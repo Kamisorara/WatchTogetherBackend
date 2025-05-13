@@ -1,5 +1,6 @@
 package com.wt.web.core.config.security;
 
+import com.wt.service.oauth2.RedisAuthorizationRequestRepository;
 import com.wt.web.core.filter.JWTAuthenticationTokenFilter;
 import com.wt.web.core.handler.ExceptionHandler;
 import jakarta.annotation.Resource;

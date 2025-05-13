@@ -1,4 +1,4 @@
-package com.wt.web.core.config.security;
+package com.wt.service.oauth2;
 
 import com.wt.common.utils.RedisCache;
 import jakarta.annotation.Resource;
@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 基于Redis的OAuth2授权请求存储库实现
- * 用于解决使用ngrok等代理时的session丢失问题
+ * 将 OAuth2 授权请求存储在 Redis 中，而不是依赖于默认的 HttpSession 存储方式
  */
 @Component
 public class RedisAuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {

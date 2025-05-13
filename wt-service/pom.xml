@@ -33,6 +33,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- OAuth2 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
         <!-- Log4j 2 依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
