@@ -37,6 +37,7 @@
         <junit.version>5.10.0</junit.version>
         <minio.verison>8.5.3</minio.verison>
         <commons-io.version>2.11.0</commons-io.version>
+        <jsoup.version>1.16.1</jsoup.version>
     </properties>
 
     <dependencyManagement>
@@ -181,6 +182,12 @@
                 <artifactId>junit-jupiter</artifactId>
                 <version>${junit.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <!-- Jsoup依赖 用做XSS防御 -->
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${jsoup.version}</version>
             </dependency>
 
             <!-- Spring Boot test -->
