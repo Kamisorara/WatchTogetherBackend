@@ -27,6 +27,8 @@ public interface UserService {
     UserInfoResp getUserInfoByToken(HttpServletRequest request) throws Exception;
 
     // 更新用户数据
-    // 更新用户信息(通用方法)
     Boolean updateUserInfo(HttpServletRequest request, SysUser userInfo) throws Exception;
+
+    // 更新用户密码（带加密）
+    Boolean updateUserPassword(HttpServletRequest request, String newPassword) throws Exception;
 }

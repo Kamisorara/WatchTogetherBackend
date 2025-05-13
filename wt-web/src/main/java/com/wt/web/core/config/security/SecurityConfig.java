@@ -1,6 +1,5 @@
 package com.wt.web.core.config.security;
 
-import com.wt.service.oauth2.RedisAuthorizationRequestRepository;
 import com.wt.web.core.filter.JWTAuthenticationTokenFilter;
 import com.wt.web.core.handler.ExceptionHandler;
 import jakarta.annotation.Resource;
@@ -28,10 +27,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     @Resource
-    private RedisAuthorizationRequestRepository redisAuthorizationRequestRepository;
-
-
-    @Resource
     private ExceptionHandler exceptionHandler;
 
     @Resource
@@ -40,6 +35,9 @@ public class SecurityConfig {
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
 
+    /**
+     * 密码加密器
+     */
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

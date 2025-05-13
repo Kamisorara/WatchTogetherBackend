@@ -166,6 +166,46 @@ public class UserBasicOperation {
     }
 
     /**
+     * 修改密码
+     */
+    @PostMapping("/update-password")
+    public RestBean updatePassword(HttpServletRequest request, @RequestBody(required = false) Map<String, String> passwordBody) {
+        String newPassword;
+        String confirmPassword;
+
+        // 优先使用JSON请求体
+        if (passwordBody != null) {
+            newPassword = passwordBody.get("newPassword");
+            confirmPassword = passwordBody.get("confirmPassword");
+        } else {
+            // 从请求参数获取
+            newPassword = request.getParameter("newPassword");
+            confirmPassword = request.getParameter("confirmPassword");
+        }
+
+        // 校验参数
+        if (StringUtils.isEmpty(newPassword) || StringUtils.isEmpty(confirmPassword)) {
+            return RestBean.error(400, "参数不完整");
+        }
+
+        // 确认两次输入的新密码一致
+        if (!newPassword.equals(confirmPassword)) {
+            return RestBean.error(400, "两次输入的新密码不一致");
+        }
+
+        try {
+            // 调用Service方法更新密码（使用加密）
+            if (userService.updateUserPassword(request, newPassword)) {
+                return RestBean.success("密码修改成功");
+            } else {
+                return RestBean.error(500, "密码修改失败");
+            }
+        } catch (Exception e) {
+            return RestBean.error(500, "密码修改失败: " + e.getMessage());
+        }
+    }
+
+    /**
      * 刷新token
      */
     @PostMapping("/refresh-token")
