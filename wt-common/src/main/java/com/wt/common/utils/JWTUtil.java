@@ -21,11 +21,34 @@ import java.util.UUID;
 @Component
 public class JWTUtil {
 
-    // 定义JWT的有效期，7天（以毫秒为单位）
-    public static final Long JWT_TTL = 60 * 60 * 24 * 7 * 1000L; // 7天
+    // 访问令牌有效期：15分钟
+    public static final Long ACCESS_TOKEN_TTL = 15 * 60 * 1000L;
 
-    // 设置密钥的明文
+    // 测试ACCESS TOKEN 5s
+//    public static final Long ACCESS_TOKEN_TTL = 5 * 1000L;
+
+    // 刷新令牌有效期：7天
+    public static final Long REFRESH_TOKEN_TTL = 7 * 24 * 60 * 60 * 1000L;
+
+    // 单TOKEN TTL
+    public static final Long JWT_TTL = 7 * 24 * 60 * 60 * 1000L;
+    // JWT 密钥S
     public static final String JWT_KEY = "TestTokenSecretKey";
+
+
+    /**
+     * 创建访问令牌
+     */
+    public static String createAccessToken(String subject) {
+        return getJwtBuilder(subject, ACCESS_TOKEN_TTL, getUUID()).compact();
+    }
+
+    /**
+     * 创建刷新令牌
+     */
+    public static String createRefreshToken(String subject) {
+        return getJwtBuilder(subject, REFRESH_TOKEN_TTL, getUUID()).compact();
+    }
 
     /**
      * 生成UUID

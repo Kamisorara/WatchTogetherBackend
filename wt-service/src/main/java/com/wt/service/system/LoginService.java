@@ -13,4 +13,7 @@ public interface LoginService {
 
     // 退出
     RestBean logout();
+
+    // 刷新Token
+    RestBean refreshToken();
 }

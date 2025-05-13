@@ -184,4 +184,12 @@ public class UserBasicOperation {
         return RestBean.error(400, "数据错误，更新失败");
     }
 
+    /**
+     * 刷新token
+     */
+    @PostMapping("/refresh-token")
+    public RestBean refreshToken() {
+        return loginService.refreshToken();
+    }
+
 }

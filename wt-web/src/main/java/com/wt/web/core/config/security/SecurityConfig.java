@@ -28,7 +28,7 @@ public class SecurityConfig {
 
     @Resource
     private RedisAuthorizationRequestRepository redisAuthorizationRequestRepository;
-    
+
 
     @Resource
     private ExceptionHandler exceptionHandler;
@@ -52,6 +52,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth.requestMatchers("/api/sys-test/**",
                 "/api/wt-test/**",
                 "/api/sys/register",
+                "/api/sys/refresh-token",
                 "/websocket/**",
                 "/api/sys/login",
                 "/api/oauth2/**",
