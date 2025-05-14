@@ -71,6 +71,9 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     @Resource
     private HttpServletResponse response;
 
+    @Resource
+    private RestTemplate restTemplate;
+
     /**
      * 获取GitHub授权URL
      *
@@ -124,7 +127,6 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
         try {
             // 使用授权码获取 access token
-            RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept", "application/json");
 
