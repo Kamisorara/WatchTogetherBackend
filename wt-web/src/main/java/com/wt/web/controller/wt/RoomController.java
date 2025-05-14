@@ -2,6 +2,7 @@ package com.wt.web.controller.wt;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wt.common.annotaion.RateLimit;
 import com.wt.entity.resp.RestBean;
 import com.wt.entity.resp.UserInfoResp;
 import com.wt.entity.wt.*;
@@ -44,6 +45,7 @@ public class RoomController {
      * 获取电影列表
      */
     @GetMapping("/get-movie-list")
+    @RateLimit(limit = 5, message = "访问过于频繁")
     public RestBean getMovieList() {
         try {
             List<WtMovies> movieList = movieService.getMovieList();
@@ -58,7 +60,11 @@ public class RoomController {
      * 上传电影
      */
     @PostMapping("/movie-upload")
-    public RestBean uploadMovie(@RequestParam("file") MultipartFile file, @RequestParam("title") String title, @RequestParam("description") String description, HttpServletRequest request) {
+    @RateLimit(key = "#request.getHeader('Authorization')", limit = 5, timeWindow = 60, message = "访问过于频繁")
+    public RestBean uploadMovie(@RequestParam("file") MultipartFile file,
+                                @RequestParam("title") String title,
+                                @RequestParam("description") String description,
+                                HttpServletRequest request) {
         try {
             // 获取当前用户ID
             Long userId = userService.getUserIdFromServerletRequest(request);
@@ -75,6 +81,7 @@ public class RoomController {
      * 创建房间
      */
     @PostMapping("/create")
+    @RateLimit(key = "#request.getHeader('Authorization')", limit = 10, timeWindow = 60, message = "访问过于频繁")
     public RestBean createRoom(HttpServletRequest request) throws Exception {
         String userId = userService.getUserIdFromServerletRequest(request).toString();
         String roomCode = roomService.createRoom(userId);
@@ -90,7 +97,9 @@ public class RoomController {
      * 加入房间 兼容屎山前端
      */
     @PostMapping("/join")
-    public RestBean joinRoom(HttpServletRequest request, @RequestBody(required = false) Map<String, String> requestMap) throws Exception {
+    @RateLimit(limit = 5, message = "访问过于频繁")
+    public RestBean joinRoom(HttpServletRequest request,
+                             @RequestBody(required = false) Map<String, String> requestMap) throws Exception {
         String roomCode;
         // 优先使用JSON请求中的数据
         if (requestMap != null) {
@@ -124,6 +133,7 @@ public class RoomController {
      * 获取房间房主ID
      */
     @GetMapping("/room-owner")
+    @RateLimit(limit = 5, message = "访问过于频繁")
     public RestBean getRoomOwner(HttpServletRequest request,
                                  @RequestBody(required = false) Map<String, String> requestMap) {
         if (requestMap != null) {
@@ -141,6 +151,7 @@ public class RoomController {
      * 获取房间内用户
      */
     @GetMapping("/get-room-user")
+    @RateLimit(limit = 5, message = "访问过于频繁")
     public RestBean getRoomUser(HttpServletRequest request) throws Exception {
         String roomCode = request.getParameter("roomCode");
         if (!roomService.roomExists(roomCode)) {
@@ -167,7 +178,8 @@ public class RoomController {
      */
     @MessageMapping("/movie-select/{roomCode}")
     @SendTo("/topic/movie-select/{roomCode}")
-    public MovieSelectMessage handleMovieSelection(@DestinationVariable("roomCode") String roomCode, @Payload MovieSelectMessage message) {
+    public MovieSelectMessage handleMovieSelection(@DestinationVariable("roomCode") String roomCode,
+                                                   @Payload MovieSelectMessage message) {
         log.info("房间 {} 选择了电影: {}", roomCode, message.getTitle());
 
         if (message.getMovieId() != null) {
@@ -193,7 +205,8 @@ public class RoomController {
      */
     @MessageMapping("/audio/{roomCode}")
     @SendTo("/topic/audio-sync/{roomCode}")
-    public AudioMessage handleAudio(@DestinationVariable("roomCode") String roomCode, String message) {
+    public AudioMessage handleAudio(@DestinationVariable("roomCode") String roomCode,
+                                    String message) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             AudioMessage audioMessage = objectMapper.readValue(message, AudioMessage.class);
@@ -238,7 +251,8 @@ public class RoomController {
      */
     @MessageMapping("/rtc-signaling/{roomCode}")
     @SendTo("/topic/rtc-signaling/{roomCode}")
-    public SignalingMessage relaySignalingMessage(@DestinationVariable("roomCode") String roomCode, @Payload SignalingMessage message) {
+    public SignalingMessage relaySignalingMessage(@DestinationVariable("roomCode") String roomCode,
+                                                  @Payload SignalingMessage message) {
         System.out.println("房间 " + roomCode + " 收到信令: " + message.getType());
         return message;
     }

@@ -1,5 +1,6 @@
 package com.wt.web.controller.system;
 
+import com.wt.common.annotaion.RateLimit;
 import com.wt.entity.resp.RestBean;
 import com.wt.entity.system.SysUser;
 import com.wt.service.fastdfs.FastDFSService;
@@ -31,9 +32,10 @@ public class UserBasicOperation {
     private MinioService minioService;
 
     /**
-     * 登录 (支持JSON格式、表单提交和URL参数) 为了兼容两个屎山前端
+     * 登录 (支持JSON格式、表单提交和URL参数) 兼容屎山前端
      */
     @PostMapping("/login")
+    @RateLimit(limit = 5, message = "访问过于频繁")
     public RestBean login(HttpServletRequest request, @RequestBody(required = false) SysUser loginUser, @RequestParam(name = "username", required = false) String username, @RequestParam(name = "password", required = false) String password) {
         SysUser user = new SysUser();
 
@@ -59,7 +61,13 @@ public class UserBasicOperation {
      * 注册 (支持JSON格式、表单提交和URL参数) 为了兼容两个屎山前端
      */
     @PostMapping("/register")
-    public RestBean register(HttpServletRequest request, @RequestBody(required = false) Map<String, String> registerBody, @RequestParam(name = "username", required = false) String usernameParam, @RequestParam(name = "password", required = false) String passwordParam, @RequestParam(name = "passwordRepeat", required = false) String passwordRepeatParam, @RequestParam(name = "email", required = false) String emailParam) {
+    @RateLimit(limit = 5, message = "访问过于频繁")
+    public RestBean register(HttpServletRequest request,
+                             @RequestBody(required = false) Map<String, String> registerBody,
+                             @RequestParam(name = "username", required = false) String usernameParam,
+                             @RequestParam(name = "password", required = false) String passwordParam,
+                             @RequestParam(name = "passwordRepeat", required = false) String passwordRepeatParam,
+                             @RequestParam(name = "email", required = false) String emailParam) {
         String username;
         String password;
         String passwordRepeat;
@@ -84,7 +92,10 @@ public class UserBasicOperation {
             passwordRepeat = request.getParameter("passwordRepeat");
             email = request.getParameter("email");
         }
-        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password) || StringUtils.isEmpty(passwordRepeat) || StringUtils.isEmpty(email)) {
+        if (StringUtils.isEmpty(username)
+                || StringUtils.isEmpty(password)
+                || StringUtils.isEmpty(passwordRepeat)
+                || StringUtils.isEmpty(email)) {
             return RestBean.error(400, "注册失败");
         }
         return loginService.register(username, password, passwordRepeat, email);
@@ -102,18 +113,20 @@ public class UserBasicOperation {
      * 从Token中获取用户基本数据
      */
     @GetMapping("/user-info")
+    @RateLimit(key = "#request.getHeader('Authorization')", limit = 5, message = "访问过于频繁")
     public RestBean getUserInfo(HttpServletRequest request) throws Exception {
         return RestBean.success(userService.getUserInfoByToken(request));
     }
 
-    /**
-     * 测试根据token返回用户id
-     */
-    @GetMapping("/token-test")
-    public RestBean tokenTest(HttpServletRequest request) throws Exception {
-        Long userId = userService.getUserIdFromServerletRequest(request);
-        return RestBean.success(userId);
-    }
+//    /**
+//     * 测试根据token返回用户id
+//     */
+//    @RateLimit(limit = 5, message = "访问过于频繁")
+//    @GetMapping("/token-test")
+//    public RestBean tokenTest(HttpServletRequest request) throws Exception {
+//        Long userId = userService.getUserIdFromServerletRequest(request);
+//        return RestBean.success(userId);
+//    }
 
 
 //    /**
@@ -130,7 +143,9 @@ public class UserBasicOperation {
      * MinIO上传头像
      */
     @PostMapping("/minio-upload")
-    public RestBean minioUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws Exception {
+    @RateLimit(limit = 2, message = "访问过于频繁")
+    public RestBean minioUpload(@RequestParam("file") MultipartFile file,
+                                HttpServletRequest request) throws Exception {
         String resultUrl = minioService.uploadImg(file);
         userService.updateUserAvatarByToken(request, resultUrl);
         Map<String, String> avatarInfo = Map.of("url", resultUrl);
@@ -141,7 +156,9 @@ public class UserBasicOperation {
      * 更新用户资料
      */
     @PostMapping("/update-userDetailInfo")
-    public RestBean updateUserDetailInfo(HttpServletRequest request, @RequestBody(required = false) SysUser userInfo) throws Exception {
+    @RateLimit(key = "#request.getHeader('Authorization')", limit = 5, message = "访问过于频繁")
+    public RestBean updateUserDetailInfo(HttpServletRequest request,
+                                         @RequestBody(required = false) SysUser userInfo) throws Exception {
         // 如果是JSON请求体
         if (userInfo != null) {
             if (userService.updateUserInfo(request, userInfo)) {
@@ -169,7 +186,9 @@ public class UserBasicOperation {
      * 修改密码
      */
     @PostMapping("/update-password")
-    public RestBean updatePassword(HttpServletRequest request, @RequestBody(required = false) Map<String, String> passwordBody) {
+    @RateLimit(key = "#request.getHeader('Authorization')", limit = 5, message = "访问过于频繁")
+    public RestBean updatePassword(HttpServletRequest request,
+                                   @RequestBody(required = false) Map<String, String> passwordBody) {
         String newPassword;
         String confirmPassword;
 

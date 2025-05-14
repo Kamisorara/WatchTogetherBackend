@@ -1,6 +1,7 @@
 package com.wt.web.core.config;
 
 import com.wt.web.core.interceptor.JwtHandshakeInterceptor;
+import com.wt.web.core.interceptor.RateLimitWebSocketInterceptor;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Resource
     private JwtHandshakeInterceptor jwtHandshakeInterceptor;
 
+    @Resource
+    private RateLimitWebSocketInterceptor rateLimitWebSocketInterceptor;
+
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
 
@@ -34,7 +38,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/websocket")
                 .setAllowedOrigins(allowedOrigins)
-                .addInterceptors(jwtHandshakeInterceptor)  // jwt interceptor 验证token
+                .addInterceptors(rateLimitWebSocketInterceptor, jwtHandshakeInterceptor)  // jwt interceptor 验证token + ws限流拦截器
                 .withSockJS()
                 .setInterceptors(new HttpSessionHandshakeInterceptor());
     }
