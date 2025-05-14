@@ -84,7 +84,7 @@ public class RateLimiterUtils {
                     String.valueOf(Math.max(rate, 0.1)),
                     String.valueOf(Math.max(requested, 1))
             );
-            System.out.println(result);
+//            System.out.println(result);
             return result != null && result == 1L;
         } catch (Exception e) {
             throw new RuntimeException("令牌桶限流执行失败", e);
