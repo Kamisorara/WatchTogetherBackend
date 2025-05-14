@@ -28,14 +28,15 @@ public class RateLimitWebSocketInterceptor implements HandshakeInterceptor {
         if (request instanceof ServletServerHttpRequest servletRequest) {
             String ip = getIpAddress(servletRequest);
 
-            // 同一IP的WebSocket连接限流，每10秒最多5次连接
-            boolean allowed = rateLimiterUtils.simpleRateLimit("ws:" + ip, 5, 10);
+            // 同一IP的WebSocket连接限流，每3秒最多5次连接
+//            boolean allowed = rateLimiterUtils.simpleRateLimit("ws:" + ip, 5, 3);
+            boolean allowed = rateLimiterUtils.tryAcquire("ws_ip:" + ip, 10, 2.0, 1);
             if (!allowed) {
                 log.warn("WebSocket连接频率过高，IP: {}", ip);
                 return false;
             }
 
-            // 全局WebSocket连接数限流，避免资源耗尽
+            // 全局WebSocket连接数限流，避免资源耗尽 ->单计数器限流作为全局控制
             boolean globalAllowed = rateLimiterUtils.simpleRateLimit("ws:global", 300, 60);
             if (!globalAllowed) {
                 log.warn("全局WebSocket连接数达到上限");

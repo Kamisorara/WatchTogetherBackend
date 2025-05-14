@@ -113,7 +113,7 @@ public class UserBasicOperation {
      * 从Token中获取用户基本数据
      */
     @GetMapping("/user-info")
-    @RateLimit(key = "#request.getHeader('Authorization')", limit = 5, message = "访问过于频繁")
+    @RateLimit(key = "#request.getHeader('Authorization') + ':' + #request.getRequestURI()", limit = 5, message = "访问过于频繁")
     public RestBean getUserInfo(HttpServletRequest request) throws Exception {
         return RestBean.success(userService.getUserInfoByToken(request));
     }
@@ -156,7 +156,7 @@ public class UserBasicOperation {
      * 更新用户资料
      */
     @PostMapping("/update-userDetailInfo")
-    @RateLimit(key = "#request.getHeader('Authorization')", limit = 5, message = "访问过于频繁")
+    @RateLimit(key = "#request.getHeader('Authorization') + ':' + #request.getRequestURI()", limit = 5, message = "访问过于频繁")
     public RestBean updateUserDetailInfo(HttpServletRequest request,
                                          @RequestBody(required = false) SysUser userInfo) throws Exception {
         // 如果是JSON请求体
@@ -186,7 +186,7 @@ public class UserBasicOperation {
      * 修改密码
      */
     @PostMapping("/update-password")
-    @RateLimit(key = "#request.getHeader('Authorization')", limit = 5, message = "访问过于频繁")
+    @RateLimit(key = "#request.getHeader('Authorization') + ':' + #request.getRequestURI()", limit = 5, message = "访问过于频繁")
     public RestBean updatePassword(HttpServletRequest request,
                                    @RequestBody(required = false) Map<String, String> passwordBody) {
         String newPassword;

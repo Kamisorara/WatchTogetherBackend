@@ -60,7 +60,7 @@ public class RoomController {
      * 上传电影
      */
     @PostMapping("/movie-upload")
-    @RateLimit(key = "#request.getHeader('Authorization')", limit = 5, timeWindow = 60, message = "访问过于频繁")
+    @RateLimit(key = "#request.getHeader('Authorization') + ':' + #request.getRequestURI()", limit = 5, message = "访问过于频繁")
     public RestBean uploadMovie(@RequestParam("file") MultipartFile file,
                                 @RequestParam("title") String title,
                                 @RequestParam("description") String description,
@@ -81,7 +81,7 @@ public class RoomController {
      * 创建房间
      */
     @PostMapping("/create")
-    @RateLimit(key = "#request.getHeader('Authorization')", limit = 10, timeWindow = 60, message = "访问过于频繁")
+    @RateLimit(key = "#request.getHeader('Authorization') + ':' + #request.getRequestURI()", limit = 5, message = "访问过于频繁")
     public RestBean createRoom(HttpServletRequest request) throws Exception {
         String userId = userService.getUserIdFromServerletRequest(request).toString();
         String roomCode = roomService.createRoom(userId);

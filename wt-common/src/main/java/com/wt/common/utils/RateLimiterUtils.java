@@ -1,12 +1,17 @@
 package com.wt.common.utils;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
+import org.springframework.util.DigestUtils;
+import org.springframework.util.StreamUtils;
 
-import java.util.Arrays;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,43 +25,37 @@ public class RateLimiterUtils {
     @Resource
     private RedisCache redisCache;
 
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    private DefaultRedisScript<Long> rateLimiterScript;
+
     /**
-     * 令牌桶算法限流脚本
-     * capacity：令牌桶的容量
-     * timestamp：当前时间戳，用于计算自上次更新以来的时间差。
-     * rate：令牌生成速率（每秒生成多少个令牌）。
-     * app：当前请求需要消耗的令牌数。
-     * fill_time：填满令牌桶所需的时间（桶的容量 / 令牌生成速率）。
-     * ttl：令牌桶状态的过期时间，设置为填满时间的两倍，确保状态不会过早丢失。
-     * current_tokens：当前桶中的令牌数，初始值为桶的容量。
-     * last_tokens_time：上次更新令牌桶的时间戳，默认为 0。
-     * delta：当前时间与上次更新时间的差值，即有多少时间过去了。
-     * filled_tokens：计算新的令牌数，按照时间差 delta 补充令牌，但不会超过桶的容量。
-     * allowed：判断是否允许请求。如果桶中令牌数 filled_tokens 大于等于请求所需的令牌数 app，则允许请求。
-     * new_tokens：更新后的令牌数。如果允许请求，则从桶中扣除相应数量的令牌；否则令牌数不变。
-     * 1：表示允许请求（有足够令牌）。
-     * 0：表示拒绝请求（令牌不足）。
+     * 初始化限流脚本
      */
-    private static final String RATE_LIMITER_SCRIPT =
-            "local key = KEYS[1] " +
-                    "local capacity = tonumber(ARGV[1]) " +
-                    "local timestamp = tonumber(ARGV[2]) " +
-                    "local rate = tonumber(ARGV[3]) " +
-                    "local app = tonumber(ARGV[4]) " +
-                    "local fill_time = capacity / rate " +
-                    "local ttl = math.floor(fill_time * 2) " +
-                    "local current_tokens = tonumber(redis.call('get', key) or capacity) " +
-                    "local last_tokens_time = tonumber(redis.call('get', key .. ':timestamp') or 0) " +
-                    "local delta = math.max(0, timestamp - last_tokens_time) " +
-                    "local filled_tokens = math.min(capacity, current_tokens + (delta * rate)) " +
-                    "local allowed = filled_tokens >= app " +
-                    "local new_tokens = filled_tokens " +
-                    "if allowed then " +
-                    "    new_tokens = filled_tokens - app " +
-                    "end " +
-                    "redis.call('setex', key, ttl, new_tokens) " +
-                    "redis.call('setex', key .. ':timestamp', ttl, timestamp) " +
-                    "return allowed and 1 or 0";
+    @PostConstruct
+    public void init() {
+        try {
+            System.out.println("开始加载Redis限流脚本");
+            ClassPathResource scriptResource = new ClassPathResource("scripts/rate_limiter.lua");
+            if (!scriptResource.exists()) {
+                System.err.println("脚本文件不存在: scripts/rate_limiter.lua");
+                throw new RuntimeException("脚本文件不存在");
+            }
+
+            String scriptContent = StreamUtils.copyToString(
+                    scriptResource.getInputStream(),
+                    StandardCharsets.UTF_8
+            );
+            System.out.println("脚本加载成功，内容长度: " + scriptContent.length());
+
+            rateLimiterScript = new DefaultRedisScript<>(scriptContent, Long.class);
+            System.out.println("Redis限流脚本初始化完成");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("无法加载限流脚本", e);
+        }
+    }
 
     /**
      * 使用令牌桶算法 尝试获取令牌
@@ -68,16 +67,32 @@ public class RateLimiterUtils {
      * @return 是否获取到令牌
      */
     public boolean tryAcquire(String key, int capacity, double rate, int requested) {
-        DefaultRedisScript<Long> script = new DefaultRedisScript<>(RATE_LIMITER_SCRIPT, Long.class);
-        List<String> keys = Arrays.asList("rate_limiter", key);
-        Long result = redisTemplate.execute(script, keys, capacity, System.currentTimeMillis() / 1000, rate, requested);
-        // 请求获取到足够令牌 就pass
-        return result != null && result == 1L;
+        try {
+            String md5Key = DigestUtils.md5DigestAsHex(key.getBytes());
+            String redisKey = "rate_bucket:" + md5Key;
+
+            if (capacity <= 0 || rate <= 0 || requested <= 0) {
+                return true;
+            }
+
+            // 使用StringRedisTemplate执行脚本
+            Long result = stringRedisTemplate.execute(
+                    rateLimiterScript,
+                    Collections.singletonList(redisKey),
+                    String.valueOf(Math.max(capacity, 1)),
+                    String.valueOf(System.currentTimeMillis() / 1000),
+                    String.valueOf(Math.max(rate, 0.1)),
+                    String.valueOf(Math.max(requested, 1))
+            );
+            System.out.println(result);
+            return result != null && result == 1L;
+        } catch (Exception e) {
+            throw new RuntimeException("令牌桶限流执行失败", e);
+        }
     }
 
-
     /**
-     * 使用简易计数器限流
+     * 简易计数器限流
      *
      * @param key    限流关键字
      * @param limit  限制次数
@@ -98,4 +113,5 @@ public class RateLimiterUtils {
         // 如果当前计数超过或等于限制值 limit 直接拒绝请求。
         return false;
     }
+
 }
