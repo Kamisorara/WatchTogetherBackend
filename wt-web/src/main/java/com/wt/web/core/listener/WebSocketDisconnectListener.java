@@ -66,10 +66,9 @@ public class WebSocketDisconnectListener implements ApplicationListener<SessionD
                     }
                 }
 
-                // 房间没人则从redis中移除房间
+                // 所有用户离开了房间，就直接删掉所有关联数据
                 if (roomService.isEmptyRoom(roomCode)) {
                     roomService.removeRoom(roomCode);
-                    log.info("room:{}房间删除", roomCode);
                 }
             }
         }

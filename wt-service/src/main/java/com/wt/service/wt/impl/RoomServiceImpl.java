@@ -116,9 +116,22 @@ public class RoomServiceImpl implements RoomService {
     public void removeRoom(String roomCode) {
         try {
             if (isEmptyRoom(roomCode)) {
-                redisCache.deleteObject(roomCode);
+                String roomKey = ROOM_PREFIX + roomCode;
+                // 删除房间
+                redisCache.deleteObject(roomKey);
+
+                // 删除关联的电影状态
+                String movieKey = ROOM_MOVIE_KEY_PREFIX + roomCode;
+                redisCache.deleteObject(movieKey);
+
+                // 删除房主信息
+                String ownerKey = ROOM_OWNER_PREFIX + roomCode;
+                redisCache.deleteObject(ownerKey);
+
+                log.info("房间 {} 及其关联数据已完全删除", roomCode);
             }
         } catch (Exception e) {
+            log.error("删除房间数据失败", e);
             throw new RuntimeException("无法删除房间");
         }
     }
