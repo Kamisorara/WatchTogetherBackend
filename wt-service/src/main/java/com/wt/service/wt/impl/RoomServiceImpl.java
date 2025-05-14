@@ -28,6 +28,9 @@ public class RoomServiceImpl implements RoomService {
     // 房间电影状态
     private static final String ROOM_MOVIE_KEY_PREFIX = "room:movie:";
 
+    // 房间房主键前缀
+    private static final String ROOM_OWNER_PREFIX = "room:owner:";
+
     @Override
     public String createRoom(String userId) {
         try {
@@ -145,5 +148,42 @@ public class RoomServiceImpl implements RoomService {
             log.error("获取房间电影状态失败", e);
         }
         return null;
+    }
+
+    @Override
+    public String getRoomOwner(String roomCode) {
+        String key = ROOM_OWNER_PREFIX + roomCode;
+        return redisCache.getCacheObject(key);
+    }
+
+    @Override
+    public void setRoomOwner(String roomCode, String userId) {
+        String key = ROOM_OWNER_PREFIX + roomCode;
+        redisCache.setCacheObject(key, userId);
+        log.info("房间 {} 设置房主: {}", roomCode, userId);
+    }
+
+    @Override
+    public boolean isRoomOwner(String roomCode, String userId) {
+        String ownerId = getRoomOwner(roomCode);
+        return userId != null && userId.equals(ownerId);
+    }
+
+    @Override
+    public String selectNewRoomOwner(String roomCode) {
+        Set<String> users = getUserIdInRoom(roomCode);
+        if (users == null || users.isEmpty()) {
+            return null;
+        }
+
+        // 随机选择一个用户作为新房主
+        String[] userArray = users.toArray(new String[0]);
+        String newOwner = userArray[new Random().nextInt(userArray.length)];
+
+        // 设置新房主
+        setRoomOwner(roomCode, newOwner);
+        log.info("房间 {} 选择新房主: {}", roomCode, newOwner);
+
+        return newOwner;
     }
 }

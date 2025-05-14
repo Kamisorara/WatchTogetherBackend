@@ -78,7 +78,11 @@ public class RoomController {
     public RestBean createRoom(HttpServletRequest request) throws Exception {
         String userId = userService.getUserIdFromServerletRequest(request).toString();
         String roomCode = roomService.createRoom(userId);
-        log.info("id:{}用户创建{}房间", userId, roomCode);
+
+        // 创建房间时设置房主
+        roomService.setRoomOwner(roomCode, userId);
+
+        log.info("id:{}用户创建{}房间并成为房主", userId, roomCode);
         return RestBean.success(roomCode);
     }
 
@@ -100,6 +104,8 @@ public class RoomController {
         } else {
             Long userId = userService.getUserIdFromServerletRequest(request);
             roomService.addUserToRoom(roomCode, userId.toString());
+            boolean isOwner = roomService.isRoomOwner(roomCode, userId.toString());
+
             log.info("id:{}用户加入房间{}", userId, roomCode);
 
             // 获取当前房间电影状态
@@ -108,9 +114,27 @@ public class RoomController {
             Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("message", userId + "加入" + roomCode + "房间");
             responseMap.put("currentMovie", currentMovie); // 即使是null也不会有问题
+            responseMap.put("isCreator", isOwner);
 
             return RestBean.success(responseMap);
         }
+    }
+
+    /**
+     * 获取房间房主ID
+     */
+    @GetMapping("/room-owner")
+    public RestBean getRoomOwner(HttpServletRequest request,
+                                 @RequestBody(required = false) Map<String, String> requestMap) {
+        if (requestMap != null) {
+            String roomCode = requestMap.get("roomCode");
+            if (!roomService.roomExists(roomCode)) {
+                return RestBean.error(400, "房间不存在");
+            }
+            String ownerId = roomService.getRoomOwner(roomCode);
+            return RestBean.success(ownerId);
+        }
+        return RestBean.error(400, "房间号不能为空");
     }
 
     /**

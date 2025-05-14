@@ -38,4 +38,16 @@ public interface RoomService {
 
     // 获取当前房间内电影的状态
     MovieSelectMessage getRoomMovieState(String roomCode);
+
+    // 获取房间房主ID
+    String getRoomOwner(String roomCode);
+
+    // 设置房间房主
+    void setRoomOwner(String roomCode, String userId);
+
+    // 判断用户是否是房主
+    boolean isRoomOwner(String roomCode, String userId);
+
+    // 房主断开连接时选择新房主
+    String selectNewRoomOwner(String roomCode);
 }
