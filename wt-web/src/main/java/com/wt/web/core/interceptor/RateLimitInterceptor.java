@@ -68,14 +68,13 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
         // 计数器算法
 //        boolean allowed = rateLimiterUtils.simpleRateLimit(limitKey, rateLimit.limit(), rateLimit.timeWindow());
-        // rate: 令牌生成速率为limit/timeWindow
-        // requested: 每个请求消耗1个令牌
+        //  令牌桶算法
         boolean allowed = rateLimiterUtils.tryAcquire(limitKey, rateLimit.limit(),
                 (double) rateLimit.limit() / rateLimit.timeWindow(), 1);
 
-        log.info("限流请求: {}, IP: {}, 允许: {}", limitKey, IpUtils.getIpAddress(request), allowed);
 
         if (!allowed) {
+            log.warn("请求频率过高，IP: {}, API: {}", IpUtils.getIpAddress(request), apiPath);
             response.setContentType("application/json;charset=UTF-8");
             response.setStatus(429);
 
