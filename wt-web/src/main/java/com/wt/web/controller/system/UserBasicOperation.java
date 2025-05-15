@@ -3,7 +3,6 @@ package com.wt.web.controller.system;
 import com.wt.common.annotaion.RateLimit;
 import com.wt.entity.resp.RestBean;
 import com.wt.entity.system.SysUser;
-import com.wt.service.fastdfs.FastDFSService;
 import com.wt.service.minio.MinioService;
 import com.wt.service.system.LoginService;
 import com.wt.service.system.UserService;
@@ -18,25 +17,36 @@ import java.util.Map;
 /**
  * 用户基本操作Controller
  */
-
 @RestController
 @RequestMapping("/api/sys")
 public class UserBasicOperation {
     @Resource
     private LoginService loginService;
+
     @Resource
     private UserService userService;
-    @Resource
-    private FastDFSService fastDFSService;
+
     @Resource
     private MinioService minioService;
 
     /**
-     * 登录 (支持JSON格式、表单提交和URL参数) 兼容屎山前端
+     * 登录接口 （兼容React 和 Vue两个屎山前端）
+     * 支持三种方式提交登录信息：JSON请求体、表单提交和URL参数
+     * 为了兼容不同前端实现方式的登录请求
+     *
+     * @param request   HTTP请求对象，用于从请求中获取参数
+     * @param loginUser JSON请求体中的用户登录信息对象
+     * @param username  URL参数或表单中的用户名
+     * @param password  URL参数或表单中的密码
+     * @return 返回登录结果，包含token信息或错误信息
      */
+
     @PostMapping("/login")
     @RateLimit(limit = 5, message = "访问过于频繁")
-    public RestBean login(HttpServletRequest request, @RequestBody(required = false) SysUser loginUser, @RequestParam(name = "username", required = false) String username, @RequestParam(name = "password", required = false) String password) {
+    public RestBean login(HttpServletRequest request,
+                          @RequestBody(required = false) SysUser loginUser,
+                          @RequestParam(name = "username", required = false) String username,
+                          @RequestParam(name = "password", required = false) String password) {
         SysUser user = new SysUser();
 
         // 优先使用JSON请求中的数据
@@ -58,7 +68,17 @@ public class UserBasicOperation {
     }
 
     /**
-     * 注册 (支持JSON格式、表单提交和URL参数) 为了兼容两个屎山前端
+     * 用户注册接口 （兼容React 和 Vue两个屎山前端）
+     * 支持三种方式提交注册信息：JSON请求体、表单提交和URL参数
+     * 为了兼容不同前端实现方式的注册请求
+     *
+     * @param request             HTTP请求对象，用于从请求中获取参数
+     * @param registerBody        JSON请求体中的注册信息映射
+     * @param usernameParam       URL参数或表单中的用户名
+     * @param passwordParam       URL参数或表单中的密码
+     * @param passwordRepeatParam URL参数或表单中的确认密码
+     * @param emailParam          URL参数或表单中的邮箱
+     * @return 返回注册结果，成功或错误信息
      */
     @PostMapping("/register")
     @RateLimit(limit = 5, message = "访问过于频繁")
@@ -102,7 +122,10 @@ public class UserBasicOperation {
     }
 
     /**
-     * 退出
+     * 退出登录接口
+     * 清除用户的登录状态和相关会话信息
+     *
+     * @return 返回退出登录结果
      */
     @PostMapping("/logout")
     public RestBean logout() {
@@ -110,7 +133,11 @@ public class UserBasicOperation {
     }
 
     /**
-     * 从Token中获取用户基本数据
+     * 获取当前登录用户信息
+     * 通过请求中的Token获取用户的基本数据
+     *
+     * @param request HTTP请求对象，用于获取Authorization头信息中的Token
+     * @return 返回用户基本信息数据
      */
     @GetMapping("/user-info")
     @RateLimit(key = "#request.getHeader('Authorization') + ':' + #request.getRequestURI()", limit = 5, message = "访问过于频繁")
@@ -140,7 +167,12 @@ public class UserBasicOperation {
 //    }
 
     /**
-     * MinIO上传头像
+     * 用户头像上传接口（MinIO存储）
+     * 上传用户头像并更新用户信息
+     *
+     * @param file    上传的头像文件
+     * @param request HTTP请求对象，用于获取当前用户信息
+     * @return 返回上传结果，包含头像URL
      */
     @PostMapping("/minio-upload")
     @RateLimit(limit = 2, message = "访问过于频繁")
@@ -153,7 +185,12 @@ public class UserBasicOperation {
     }
 
     /**
-     * 更新用户资料
+     * 更新用户个人资料
+     * 根据请求中的Token识别用户并更新其个人资料
+     *
+     * @param request  HTTP请求对象，用于获取当前用户信息
+     * @param userInfo 包含需要更新的用户信息的对象
+     * @return 返回更新结果，成功或错误信息
      */
     @PostMapping("/update-userDetailInfo")
     @RateLimit(key = "#request.getHeader('Authorization') + ':' + #request.getRequestURI()", limit = 5, message = "访问过于频繁")
@@ -183,7 +220,12 @@ public class UserBasicOperation {
     }
 
     /**
-     * 修改密码
+     * 修改用户密码（兼容React 和 Vue两个屎山前端）
+     * 根据请求中的Token识别用户并更新其密码
+     *
+     * @param request      HTTP请求对象，用于获取当前用户信息
+     * @param passwordBody 包含新密码和确认密码的JSON对象
+     * @return 返回密码修改结果，成功或错误信息
      */
     @PostMapping("/update-password")
     @RateLimit(key = "#request.getHeader('Authorization') + ':' + #request.getRequestURI()", limit = 5, message = "访问过于频繁")
@@ -225,7 +267,10 @@ public class UserBasicOperation {
     }
 
     /**
-     * 刷新token
+     * 刷新访问令牌
+     * 使用refresh token刷新access token，并根据条件对refresh token进行续签
+     *
+     * @return 返回刷新结果，包含新的token信息或错误信息
      */
     @PostMapping("/refresh-token")
     public RestBean refreshToken() {
