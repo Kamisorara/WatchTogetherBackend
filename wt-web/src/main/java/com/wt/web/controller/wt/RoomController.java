@@ -253,7 +253,7 @@ public class RoomController {
     @SendTo("/topic/rtc-signaling/{roomCode}")
     public SignalingMessage relaySignalingMessage(@DestinationVariable("roomCode") String roomCode,
                                                   @Payload SignalingMessage message) {
-        System.out.println("房间 " + roomCode + " 收到信令: " + message.getType());
+        log.info("房间 {} 收到信令: {}", roomCode, message.getType());
         return message;
     }
 
