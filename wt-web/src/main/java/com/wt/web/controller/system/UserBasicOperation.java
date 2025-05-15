@@ -40,7 +40,6 @@ public class UserBasicOperation {
      * @param password  URL参数或表单中的密码
      * @return 返回登录结果，包含token信息或错误信息
      */
-
     @PostMapping("/login")
     @RateLimit(limit = 5, message = "访问过于频繁")
     public RestBean login(HttpServletRequest request,
