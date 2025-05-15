@@ -43,6 +43,9 @@ public class RoomController {
 
     /**
      * 获取电影列表
+     * 返回系统中所有可用的电影信息列表
+     *
+     * @return 包含电影列表的RestBean响应，成功时包含电影列表数据，失败时包含错误信息
      */
     @GetMapping("/get-movie-list")
     @RateLimit(limit = 5, message = "访问过于频繁")
@@ -57,7 +60,15 @@ public class RoomController {
     }
 
     /**
-     * 上传电影
+     * 上传电影文件
+     * 接收用户上传的电影文件并保存到系统中，记录相关元数据
+     * 仅限已登录用户使用，且有访问频率限制
+     *
+     * @param file        上传的电影文件，MultipartFile格式
+     * @param title       电影标题，不能为空
+     * @param description 电影描述信息
+     * @param request     HTTP请求对象，用于获取当前用户信息
+     * @return 包含上传结果的RestBean响应，成功时包含电影信息，失败时包含错误信息
      */
     @PostMapping("/movie-upload")
     @RateLimit(key = "#request.getHeader('Authorization') + ':' + #request.getRequestURI()", limit = 5, message = "访问过于频繁")
@@ -78,7 +89,13 @@ public class RoomController {
     }
 
     /**
-     * 创建房间
+     * 创建观影房间
+     * 为当前用户创建一个新的观影房间，并将用户设置为房主
+     * 有访问频率限制，防止恶意调用
+     *
+     * @param request HTTP请求对象，用于获取当前用户信息
+     * @return 包含房间代码的RestBean响应，成功时返回新创建房间的唯一代码
+     * @throws Exception 创建房间过程中可能抛出的异常
      */
     @PostMapping("/create")
     @RateLimit(key = "#request.getHeader('Authorization') + ':' + #request.getRequestURI()", limit = 5, message = "访问过于频繁")
@@ -94,7 +111,13 @@ public class RoomController {
     }
 
     /**
-     * 加入房间 兼容屎山前端
+     * 加入观影房间
+     * 支持JSON格式和表单参数两种提交方式，用于 兼容屎山前端
+     * 检查房间是否存在，将用户添加到指定房间，并返回房间当前状态
+     *
+     * @param request    HTTP请求对象，用于获取当前用户信息
+     * @param requestMap JSON请求体中的参数映射，包含roomCode参数
+     * @return 包含加入结果的RestBean响应，成功时包含房间状态信息，失败时包含错误信息
      */
     @PostMapping("/join")
     @RateLimit(limit = 5, message = "访问过于频繁")
@@ -131,6 +154,11 @@ public class RoomController {
 
     /**
      * 获取房间房主ID
+     * 根据房间代码查询并返回房间创建者的用户ID
+     *
+     * @param request    HTTP请求对象
+     * @param requestMap JSON请求体中的参数映射，包含roomCode参数
+     * @return 包含房主ID的RestBean响应，成功时返回房主用户ID，失败时包含错误信息
      */
     @GetMapping("/room-owner")
     @RateLimit(limit = 5, message = "访问过于频繁")
@@ -148,7 +176,11 @@ public class RoomController {
     }
 
     /**
-     * 获取房间内用户
+     * 获取房间内所有用户信息
+     * 返回指定房间中所有在线用户的详细信息
+     *
+     * @param request HTTP请求对象，包含roomCode参数
+     * @return 包含房间用户列表的RestBean响应，成功时返回用户详细信息列表，失败时包含错误信息
      */
     @GetMapping("/get-room-user")
     @RateLimit(limit = 5, message = "访问过于频繁")
@@ -165,7 +197,12 @@ public class RoomController {
     }
 
     /**
-     * 视频控制
+     * 视频控制message处理
+     * WebSocket端点，处理房间内视频播放控制消息（如播放、暂停、跳转等）
+     * 接收客户端发送的控制指令并广播给房间内所有用户
+     *
+     * @param message 视频控制消息对象，包含控制类型和参数
+     * @return 广播给房间内所有用户的视频控制消息
      */
     @MessageMapping("/video-control/{roomCode}")
     @SendTo("/topic/video-sync/{roomCode}")
@@ -174,7 +211,13 @@ public class RoomController {
     }
 
     /**
-     * 处理电影选择
+     * 处理电影选择message
+     * WebSocket端点，处理房间内电影选择变更
+     * 接收房主选择的电影信息并广播给房间内所有用户，同时保存房间当前电影状态
+     *
+     * @param roomCode 房间代码，用于标识接收消息的房间
+     * @param message  电影选择消息对象，包含电影ID、标题和视频URL
+     * @return 广播给房间内所有用户的电影选择消息
      */
     @MessageMapping("/movie-select/{roomCode}")
     @SendTo("/topic/movie-select/{roomCode}")
@@ -201,7 +244,13 @@ public class RoomController {
     }
 
     /**
-     * 处理音频数据
+     * 处理音频数据传输 (后期Electron版本使用)
+     * WebSocket端点，处理房间内语音聊天的音频数据
+     * 接收Base64编码的音频数据，解码后转发给房间内其他用户
+     *
+     * @param roomCode 房间代码，用于标识接收消息的房间
+     * @param message  包含Base64编码音频数据的JSON字符串
+     * @return 解码后的音频消息对象，用于广播给房间内其他用户
      */
     @MessageMapping("/audio/{roomCode}")
     @SendTo("/topic/audio-sync/{roomCode}")
@@ -243,11 +292,13 @@ public class RoomController {
     }
 
     /**
-     * 中继信令消息
+     * 中继WebRTC信令消息
+     * WebSocket端点，处理房间内WebRTC连接建立所需的信令交换
+     * 接收客户端发送的信令消息并转发给房间内其他用户
      *
-     * @param roomCode 房间号
-     * @param message  信令消息
-     * @return 信令消息
+     * @param roomCode 房间代码，用于标识接收消息的房间
+     * @param message  信令消息对象，包含信令类型和数据
+     * @return 转发给房间内其他用户的信令消息
      */
     @MessageMapping("/rtc-signaling/{roomCode}")
     @SendTo("/topic/rtc-signaling/{roomCode}")
