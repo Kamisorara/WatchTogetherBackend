@@ -24,6 +24,13 @@ public class RedisAuthorizationRequestRepository implements AuthorizationRequest
     @Resource
     private RedisCache redisCache;
 
+    /**
+     * 从Redis加载OAuth2授权请求
+     * 根据请求中的state参数查找并返回存储的授权请求对象
+     *
+     * @param request HTTP请求，包含OAuth2授权请求的state参数
+     * @return 返回与请求state参数关联的OAuth2授权请求对象，如果不存在则返回null
+     */
     @Override
     public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
         String stateParameter = getStateParameter(request);
@@ -34,6 +41,15 @@ public class RedisAuthorizationRequestRepository implements AuthorizationRequest
         return null;
     }
 
+    /**
+     * 将OAuth2授权请求保存到Redis
+     * 使用授权请求中的state参数作为键，设置10分钟的过期时间
+     * 如果授权请求为null，则尝试删除现有的授权请求
+     *
+     * @param authorizationRequest 要保存的OAuth2授权请求对象，可能为null
+     * @param request              HTTP请求对象
+     * @param response             HTTP响应对象
+     */
     @Override
     public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest,
                                          HttpServletRequest request,
@@ -52,6 +68,14 @@ public class RedisAuthorizationRequestRepository implements AuthorizationRequest
         redisCache.setCacheObject(key, authorizationRequest, AUTHORIZATION_REQUEST_EXPIRE_TIME, TimeUnit.MINUTES);
     }
 
+    /**
+     * 从Redis中移除并返回OAuth2授权请求
+     * 根据请求中的state参数查找、删除并返回存储的授权请求
+     *
+     * @param request  HTTP请求对象，包含state参数
+     * @param response HTTP响应对象
+     * @return 返回被移除的OAuth2授权请求对象，如果不存在则返回null
+     */
     @Override
     public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request,
                                                                  HttpServletResponse response) {
@@ -67,6 +91,13 @@ public class RedisAuthorizationRequestRepository implements AuthorizationRequest
         return null;
     }
 
+    /**
+     * 从HTTP请求中提取OAuth2 state参数
+     * state参数用于关联授权请求和回调，防止CSRF攻击
+     *
+     * @param request HTTP请求对象
+     * @return 返回请求中的state参数值，如果不存在则返回null
+     */
     private String getStateParameter(HttpServletRequest request) {
         return request.getParameter("state");
     }

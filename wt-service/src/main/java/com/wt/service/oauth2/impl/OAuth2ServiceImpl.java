@@ -35,6 +35,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * OAuth2认证服务实现类
+ * 提供GitHub等第三方平台OAuth2登录认证功能
+ * 实现授权URL生成、回调处理、用户注册与绑定等功能
+ * 使用Redis存储授权状态和会话信息，保障认证安全性
+ */
 @Service
 @Slf4j
 public class OAuth2ServiceImpl implements OAuth2Service {
@@ -75,9 +81,11 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     private RestTemplate restTemplate;
 
     /**
-     * 获取GitHub授权URL
+     * 获取GitHub OAuth2授权URL
+     * 生成唯一的state参数并创建授权请求链接
+     * 将授权状态保存到Redis中用于后续验证，有效期10分钟
      *
-     * @return url
+     * @return 包含授权URL和state参数的RestBean响应
      */
     @Override
     public RestBean<Map<String, String>> getGithubAuthorizeUrl() {
@@ -109,7 +117,15 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     }
 
     /**
-     * 处理GitHub回调
+     * 处理GitHub OAuth2回调
+     * 验证state参数有效性，使用授权码交换访问令牌并获取用户信息
+     * 若用户已绑定则自动登录并生成JWT令牌，否则引导用户完成注册
+     *
+     * @param code     GitHub授权成功返回的授权码
+     * @param state    安全校验码，必须与发起授权请求时提供的state一致
+     * @param response HTTP响应对象，用于设置Cookie和执行重定向
+     * @return 包含处理结果的RestBean响应
+     * @throws IOException 执行重定向操作时可能抛出的异常
      */
     @Override
     public RestBean<Object> handleGithubCallback(String code, String state, HttpServletResponse response) throws IOException {
@@ -223,7 +239,12 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     }
 
     /**
-     * 完成OAuth2注册
+     * 完成OAuth2用户注册流程
+     * 验证邮箱有效性，创建本地用户账号并与OAuth2提供商账号建立关联
+     * 生成访问令牌和刷新令牌，设置安全Cookie并将用户状态保存到Redis
+     *
+     * @param data 包含用户注册信息的Map，必须包含email、oauthId字段
+     * @return 包含注册结果的RestBean响应，成功时返回包含访问令牌的Map
      */
     @Override
     public RestBean completeOAuth2Registration(Map<String, String> data) {
@@ -309,7 +330,13 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         }
     }
 
-    // 验证邮箱
+    /**
+     * 验证邮箱格式
+     * 检查邮箱地址是否符合基本格式规范
+     *
+     * @param email 待验证的邮箱地址
+     * @return 邮箱格式有效返回true，否则返回false
+     */
     private boolean isValidEmail(String email) {
         return email != null && email.matches("^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,4}$");
     }
