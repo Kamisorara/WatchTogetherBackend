@@ -35,17 +35,13 @@ public class SecurityConfig {
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
 
-    /**
-     * 密码加密器
-     */
+    // 密码加密器
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Security核心配置
-     */
+    // Security核心配置
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthorizationRequestRepository authorizationRequestRepository) throws Exception {
         http.authorizeHttpRequests(auth -> auth.requestMatchers("/api/sys-test/**",
@@ -80,17 +76,13 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /**
-     * 将 AuthenticationManager 作为 Spring Bean 注入
-     */
+    // 将 AuthenticationManager 作为 Spring Bean 注入
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    /**
-     * 跨域配置
-     */
+    // 跨域配置
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
