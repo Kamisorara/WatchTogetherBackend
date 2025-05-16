@@ -1,4 +1,5 @@
 ### WatchTogether 项目结构
+
 ```angular2html
 WatchTogetherBackend
 ├── wt-common   // 通用工具类、封装结果、常量等
@@ -10,4 +11,8 @@ WatchTogetherBackend
 // 继承关系
 wt-web -> wt-service -> wt-dao -> wt-common -> entity
 ```
+
+### 系统架构图
+
+![img1.jpg](img/img1.jpg)
 
