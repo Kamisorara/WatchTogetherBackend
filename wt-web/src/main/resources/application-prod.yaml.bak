@@ -9,6 +9,11 @@ cors:
   allowedOrigins: "https://watch.atlaskk.me"
 
 spring:
+  banner:
+    charset: UTF-8
+    location: classpath:banner.txt
+  main:
+    banner-mode: console
   security:
     # Oauth2 第三方登录配置
     oauth2:
