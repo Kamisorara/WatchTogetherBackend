@@ -1,6 +1,5 @@
 package com.wt.service.system;
 
-import com.wt.entity.resp.UserInfoResp;
 import com.wt.entity.system.SysUser;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -67,7 +66,7 @@ public interface UserService {
      * @return 包含用户详细信息的UserInfoResp对象
      * @throws Exception 令牌解析失败时抛出异常
      */
-    UserInfoResp getUserInfoByToken(HttpServletRequest request) throws Exception;
+    SysUser getUserInfoByToken(HttpServletRequest request) throws Exception;
 
     /**
      * 更新用户资料信息

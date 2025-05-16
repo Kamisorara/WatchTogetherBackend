@@ -1,44 +1,91 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.wt.dao.mapper.UserMapper">
-    <select id="FindUserById">
-        SELECT su.user_name
-        FROM `sys_user` su
-        WHERE su.id = #{userId};
+
+    <!-- 查询用户所有字段 -->
+    <sql id="selectUserVo">
+        select id,
+               user_name,
+               user_password,
+               user_email,
+               user_phone,
+               user_avatar,
+               user_status,
+               create_time,
+               user_type,
+               user_nick_name,
+               user_sex,
+               del_flag
+        from sys_user
+    </sql>
+
+    <!-- 查询用户信息字段(不含密码) -->
+    <sql id="selectUserInfoVo">
+        select id,
+               user_name,
+               user_email,
+               user_phone,
+               user_sex,
+               user_avatar,
+               user_status,
+               create_time,
+               user_type,
+               user_nick_name,
+               del_flag
+        from sys_user
+    </sql>
+
+    <resultMap id="userInfoResultMap" type="com.wt.entity.system.SysUser">
+        <id property="id" column="id"/>
+        <result property="userName" column="user_name"/>
+        <result property="userEmail" column="user_email"/>
+        <result property="userPhone" column="user_phone"/>
+        <result property="userSex" column="user_sex"/>
+        <result property="userAvatar" column="user_avatar"/>
+        <result property="userStatus" column="user_status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="userType" column="user_type"/>
+        <result property="userNickName" column="user_nick_name"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <select id="FindUserById" resultType="java.lang.String">
+        select user_name
+        from sys_user
+        where id = #{userId}
     </select>
 
-    <select id="selectUserIdByUserName">
-        SELECT su.id
-        FROM sys_user su
-        WHERE su.user_name = #{userName};
+    <select id="selectUserIdByUserName" resultType="java.lang.Long">
+        select id
+        from sys_user
+        where user_name = #{userName}
     </select>
 
-    <select id="getUserStatus">
-        SELECT su.user_status
-        FROM sys_user su
-        WHERE su.id = #{userId};
+    <select id="getUserStatus" resultType="java.lang.String">
+        select user_status
+        from sys_user
+        where id = #{userId}
     </select>
 
-    <select id="countUserEmail">
-        SELECT COUNT(su.user_email)
-        FROM sys_user su
-        WHERE su.user_email = #{email};
+    <select id="countUserEmail" resultType="java.lang.Integer">
+        select count(user_email)
+        from sys_user
+        where user_email = #{email}
     </select>
 
     <update id="updateUserAvatar">
-        UPDATE sys_user su
-        SET su.user_avatar = #{avatarUrl}
-        WHERE su.id = #{userId};
+        update sys_user
+        set user_avatar = #{avatarUrl}
+        where id = #{userId}
     </update>
 
-    <select id="getUserInfoById">
-        SELECT *
-        FROM sys_user su
-        WHERE su.id = #{userId};
+    <select id="getUserInfoById" resultMap="userInfoResultMap">
+        <include refid="selectUserInfoVo"/>
+        where id = #{userId}
     </select>
 
     <update id="updateUserDetailInfo" parameterType="com.wt.entity.system.SysUser">
-        UPDATE sys_user
+        update sys_user
         <set>
             <if test="userName != null">user_name = #{userName},</if>
             <if test="userEmail != null">user_email = #{userEmail},</if>
@@ -46,7 +93,11 @@
             <if test="userSex != null">user_sex = #{userSex},</if>
             <if test="userAvatar != null">user_avatar = #{userAvatar},</if>
             <if test="userPassword != null">user_password = #{userPassword},</if>
+            <if test="userStatus != null">user_status = #{userStatus},</if>
+            <if test="userType != null">user_type = #{userType},</if>
+            <if test="userNickName != null">user_nick_name = #{userNickName},</if>
+            <if test="delFlag != null">del_flag = #{delFlag}</if>
         </set>
-        WHERE id = #{id}
+        where id = #{id}
     </update>
 </mapper>

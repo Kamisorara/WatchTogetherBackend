@@ -2,7 +2,6 @@ package com.wt.service.system.impl;
 
 import com.wt.common.utils.JWTUtil;
 import com.wt.dao.mapper.UserMapper;
-import com.wt.entity.resp.UserInfoResp;
 import com.wt.entity.system.SysUser;
 import com.wt.service.system.UserService;
 import io.jsonwebtoken.Claims;
@@ -103,7 +102,7 @@ public class UserServiceImpl implements UserService {
      * @throws Exception 令牌解析失败时抛出异常
      */
     @Override
-    public UserInfoResp getUserInfoByToken(HttpServletRequest request) throws Exception {
+    public SysUser getUserInfoByToken(HttpServletRequest request) throws Exception {
         Long userId = getUserIdFromServerletRequest(request);
         return userMapper.getUserInfoById(userId);
     }

@@ -1,7 +1,6 @@
 package com.wt.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wt.entity.resp.UserInfoResp;
 import com.wt.entity.system.SysUser;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -24,7 +23,7 @@ public interface UserMapper extends BaseMapper<SysUser> {
     Integer updateUserAvatar(@Param("userId") Long userId, @Param("avatarUrl") String avatarUrl);
 
     // 根据用户id获取用户详情
-    UserInfoResp getUserInfoById(@Param("userId") Long userId);
+    SysUser getUserInfoById(@Param("userId") Long userId);
 
     // 修改用户数据 （升级版）
     Integer updateUserDetailInfo(SysUser user);

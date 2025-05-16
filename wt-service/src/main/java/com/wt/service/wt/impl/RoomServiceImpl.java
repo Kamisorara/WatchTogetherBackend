@@ -3,7 +3,7 @@ package com.wt.service.wt.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wt.common.utils.RedisCache;
 import com.wt.dao.mapper.UserMapper;
-import com.wt.entity.resp.UserInfoResp;
+import com.wt.entity.system.SysUser;
 import com.wt.entity.wt.MovieSelectMessage;
 import com.wt.service.wt.RoomService;
 import jakarta.annotation.Resource;
@@ -127,12 +127,12 @@ public class RoomServiceImpl implements RoomService {
      * @return 房间内其他用户的详细信息列表
      */
     @Override
-    public List<UserInfoResp> getUserDetailsInRoom(Set<String> userIdSet, String personalId) {
-        List<UserInfoResp> result = new ArrayList<>();
+    public List<SysUser> getUserDetailsInRoom(Set<String> userIdSet, String personalId) {
+        List<SysUser> result = new ArrayList<>();
         // 排除自己Id
         userIdSet.remove(personalId);
         for (String userId : userIdSet) {
-            UserInfoResp userDetailInfo = userMapper.getUserInfoById(Long.valueOf(userId));
+            SysUser userDetailInfo = userMapper.getUserInfoById(Long.valueOf(userId));
             result.add(userDetailInfo);
         }
         return result;

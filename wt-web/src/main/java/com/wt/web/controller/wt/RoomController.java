@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wt.common.annotaion.RateLimit;
 import com.wt.entity.resp.RestBean;
-import com.wt.entity.resp.UserInfoResp;
+import com.wt.entity.system.SysUser;
 import com.wt.entity.wt.*;
 import com.wt.service.system.UserService;
 import com.wt.service.wt.MovieService;
@@ -191,7 +191,7 @@ public class RoomController {
         } else {
             Long personalId = userService.getUserIdFromServerletRequest(request);
             Set<String> userIdInRoom = roomService.getUserIdInRoom(roomCode);
-            List<UserInfoResp> userDetailsInRoom = roomService.getUserDetailsInRoom(userIdInRoom, String.valueOf(personalId));
+            List<SysUser> userDetailsInRoom = roomService.getUserDetailsInRoom(userIdInRoom, String.valueOf(personalId));
             return RestBean.success(userDetailsInRoom);
         }
     }

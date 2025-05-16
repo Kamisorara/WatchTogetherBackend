@@ -1,7 +1,7 @@
 package com.wt.service.wt;
 
 
-import com.wt.entity.resp.UserInfoResp;
+import com.wt.entity.system.SysUser;
 import com.wt.entity.wt.MovieSelectMessage;
 
 import java.util.List;
@@ -60,7 +60,7 @@ public interface RoomService {
      * @param personalId 当前用户ID，将被排除
      * @return 房间内其他用户的详细信息列表
      */
-    List<UserInfoResp> getUserDetailsInRoom(Set<String> userIdSet, String personalId);
+    List<SysUser> getUserDetailsInRoom(Set<String> userIdSet, String personalId);
 
     /**
      * 将用户从房间中移除
