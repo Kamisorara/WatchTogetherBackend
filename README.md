@@ -9,7 +9,7 @@ WatchTogetherBackend
 └── wt-web      // Controller、WebSocket、核心配置类、拦截器、监听器、过滤器等
 
 // 继承关系
-wt-web -> wt-service -> wt-dao -> wt-common -> entity
+wt-web -> wt-service -> wt-dao -> wt-common -> wt-entity
 ```
 
 ------
