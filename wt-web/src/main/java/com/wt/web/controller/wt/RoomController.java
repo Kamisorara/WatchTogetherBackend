@@ -3,12 +3,14 @@ package com.wt.web.controller.wt;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wt.common.annotaion.RateLimit;
+import com.wt.entity.DTO.ChatMessageDTO;
 import com.wt.entity.resp.RestBean;
 import com.wt.entity.system.SysUser;
 import com.wt.entity.wt.*;
 import com.wt.service.system.UserService;
 import com.wt.service.wt.MovieService;
 import com.wt.service.wt.RoomService;
+import com.wt.web.core.listener.WebSocketConnectListener;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -18,14 +20,14 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * 房间内操作相关Controller
@@ -162,8 +164,7 @@ public class RoomController {
      */
     @GetMapping("/room-owner")
     @RateLimit(limit = 5, message = "访问过于频繁")
-    public RestBean getRoomOwner(HttpServletRequest request,
-                                 @RequestBody(required = false) Map<String, String> requestMap) {
+    public RestBean getRoomOwner(HttpServletRequest request, @RequestBody(required = false) Map<String, String> requestMap) {
         if (requestMap != null) {
             String roomCode = requestMap.get("roomCode");
             if (!roomService.roomExists(roomCode)) {
@@ -244,6 +245,50 @@ public class RoomController {
     }
 
     /**
+     * 处理聊天消息并广播给房间内所有用户
+     */
+    @MessageMapping("/chat/{roomCode}")
+    @SendTo("/topic/chat/{roomCode}")
+    public ChatMessageDTO sendMessage(@DestinationVariable("roomCode") String roomCode,
+                                      @Payload ChatMessageDTO chatMessage,
+                                      SimpMessageHeaderAccessor headerAccessor) {
+        try {
+            // 从会话中获取用户信息
+            String sessionId = headerAccessor.getSessionId();
+            Map<String, String> userInfo = WebSocketConnectListener.getSessionInfo(sessionId);
+
+            if (userInfo == null || userInfo.get("userId") == null) {
+                throw new IllegalArgumentException("用户未认证");
+            }
+
+            String userId = userInfo.get("userId");
+            Long userIdLong = Long.valueOf(userId);
+
+            // 获取用户详细信息
+            SysUser user = userService.getUserInfo(userIdLong);
+
+            // 创建包含完整用户信息的消息
+            ChatMessageDTO message = new ChatMessageDTO();
+            message.setId(UUID.randomUUID().toString());
+            message.setUserId(String.valueOf(user.getId()));
+            message.setUserName(user.getUserName());
+            message.setUserAvatar(user.getUserAvatar());
+            message.setContent(chatMessage.getContent());
+            message.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+            log.info("房间 {} 收到用户 {} 的聊天消息: {}", roomCode, user.getUserName(), message.getContent());
+
+            return message;
+        } catch (Exception e) {
+            log.error("处理聊天消息时出错", e);
+            // 出错时依然返回原始消息，但添加服务器生成的ID和时间戳
+            chatMessage.setId(UUID.randomUUID().toString());
+            chatMessage.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            return chatMessage;
+        }
+    }
+
+    /**
      * 处理音频数据传输 (后期Electron版本使用)
      * WebSocket端点，处理房间内语音聊天的音频数据
      * 接收Base64编码的音频数据，解码后转发给房间内其他用户
@@ -254,8 +299,7 @@ public class RoomController {
      */
     @MessageMapping("/audio/{roomCode}")
     @SendTo("/topic/audio-sync/{roomCode}")
-    public AudioMessage handleAudio(@DestinationVariable("roomCode") String roomCode,
-                                    String message) {
+    public AudioMessage handleAudio(@DestinationVariable("roomCode") String roomCode, String message) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             AudioMessage audioMessage = objectMapper.readValue(message, AudioMessage.class);
@@ -302,8 +346,7 @@ public class RoomController {
      */
     @MessageMapping("/rtc-signaling/{roomCode}")
     @SendTo("/topic/rtc-signaling/{roomCode}")
-    public SignalingMessage relaySignalingMessage(@DestinationVariable("roomCode") String roomCode,
-                                                  @Payload SignalingMessage message) {
+    public SignalingMessage relaySignalingMessage(@DestinationVariable("roomCode") String roomCode, @Payload SignalingMessage message) {
         log.info("房间 {} 收到信令: {}", roomCode, message.getType());
         return message;
     }

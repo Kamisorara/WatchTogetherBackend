@@ -20,6 +20,15 @@ public interface UserService {
     String getUserName(Long userId);
 
     /**
+     * 根据用户Id查询用户信息
+     * 通过sys_user id查询获取指定用户的用户信息
+     *
+     * @param userId 用户id
+     * @return 用户信息
+     */
+    SysUser getUserInfo(Long userId);
+
+    /**
      * 从HTTP请求头中提取用户ID
      * 解析请求头中的Authorization中的Access Token并提取用户标识
      *
