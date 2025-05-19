@@ -246,6 +246,11 @@ public class RoomController {
 
     /**
      * 处理聊天消息并广播给房间内所有用户
+     *
+     * @param roomCode       房间代码，用于标识接收消息的房间
+     * @param chatMessage    聊天消息对象，包含消息内容
+     * @param headerAccessor WebSocket消息头访问器，用于获取会话信息
+     * @return 包含用户信息和消息内容的聊天消息对象
      */
     @MessageMapping("/chat/{roomCode}")
     @SendTo("/topic/chat/{roomCode}")
