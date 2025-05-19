@@ -37,5 +37,3 @@ wt-web -> wt-service -> wt-dao -> wt-common -> entity
   集成 Jsoup 对输入内容进行过滤。
 - **分层架构设计**：
   采用标准的分层架构（Controller、Service、DAO、Entity、Common ）。
-
-、Common 工具类），每层职责清晰，易于维护和扩展。
