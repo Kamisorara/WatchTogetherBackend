@@ -52,6 +52,33 @@ public class OAuth2Controller {
     }
 
     /**
+     * 获取Google授权URL
+     *
+     * @return
+     */
+    @GetMapping("/google/authorize")
+    public RestBean<Map<String, String>> getGoogleAuthorizeUrl() {
+        return oAuth2Service.getGoogleAuthorizeUrl();
+    }
+
+    /**
+     * 处理Google OAuth2授权回调
+     *
+     * @param code
+     * @param state
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    @GetMapping("/google/callback")
+    public RestBean<Object> handleGoogleCallback(
+            @RequestParam("code") String code,
+            @RequestParam("state") String state,
+            HttpServletResponse response) throws IOException {
+        return oAuth2Service.handleGoogleCallback(code, state, response);
+    }
+
+    /**
      * 提交邮箱完成OAuth2注册
      * 对于首次通过OAuth2登录的用户，需要提供邮箱等额外信息完成注册流程
      *

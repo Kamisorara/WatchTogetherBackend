@@ -1,3 +1,4 @@
+# 开发环境配置
 server:
   port: 8081
   tomcat:
@@ -9,22 +10,37 @@ cors:
   allowedOrigins: "http://localhost:5000"
 
 spring:
+  banner:
+    charset: UTF-8
+    location: classpath:banner.txt
+  main:
+    banner-mode: console
   security:
     # Oauth2 第三方登录配置
     oauth2:
       client:
         registration:
           github:
-            client-id: 客户端id
-            client-secret: 客户端密钥
-            redirect-uri: http://localhost:8081/api/oauth2/github/callback
+            client-id:
+            client-secret:
+            redirect-uri:
             scope: read:user,user:email
+          google:
+            client-id:
+            client-secret:
+            redirect-uri:
+            scope: openid,email,profile
         provider:
           github:
             authorization-uri: https://github.com/login/oauth/authorize
             token-uri: https://github.com/login/oauth/access_token
             user-info-uri: https://api.github.com/user
             user-name-attribute: id
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://openidconnect.googleapis.com/v1/userinfo
+            user-name-attribute: sub
 
   # servlet配置
   servlet:
@@ -34,15 +50,15 @@ spring:
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysql数据库地址:63306/watch_together?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
+    url: jdbc:mysql://IP:端口/watch_together?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
     username: root
-    password: 密码
+    password:
   # redis配置
   data:
     redis:
-      host: redis服务器地址
+      host: IP
       port: 6379
-      password: redis密码 没有就不填写
+      password: 有密码就填
       database: 0
       connect-timeout: 60s
       lettuce:
@@ -71,16 +87,16 @@ fdfs:
     width: 150
     height: 150
   tracker-list: #TrackerList参数,支持多个
-    - fastdfs地址
-  web-server-url: web域名
+    - TracketIP地址:端口号
+  web-server-url: 域名或反代地址
 
 # MinIO配置
 minio:
-  endpoint: https://minio.yourdomain.me
-  public-endpoint: https://minio.yourdomain.me
-  access-key: 账号
-  secret-key: 密码
-  bucket: 对应bucket名称
+  endpoint:       # 写你的实际 MinIO 域名或反代地址
+  public-endpoint:
+  access-key:
+  secret-key:
+  bucket:
 
 # Swagger 配置
 springdoc:

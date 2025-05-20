@@ -1,3 +1,4 @@
+# 生产环境配置
 server:
   port: 8081
   tomcat:
@@ -6,9 +7,14 @@ server:
     max-swallow-size: 2147483647  # 请求体最大大小
 
 cors:
-  allowedOrigins: "https://watch.atlaskk.me"
+  allowedOrigins: "www.yourdomain.com"
 
 spring:
+  banner:
+    charset: UTF-8
+    location: classpath:banner.txt
+  main:
+    banner-mode: console
   security:
     # Oauth2 第三方登录配置
     oauth2:
@@ -17,14 +23,24 @@ spring:
           github:
             client-id:
             client-secret:
-            redirect-uri: https://www.yourdomain.com/prod-api/api/oauth2/github/callback
+            redirect-uri:
             scope: read:user,user:email
+          google:
+            client-id:
+            client-secret:
+            redirect-uri:
+            scope: openid,email,profile
         provider:
           github:
             authorization-uri: https://github.com/login/oauth/authorize
             token-uri: https://github.com/login/oauth/access_token
             user-info-uri: https://api.github.com/user
             user-name-attribute: id
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://openidconnect.googleapis.com/v1/userinfo
+            user-name-attribute: sub
 
   # servlet配置
   servlet:

@@ -34,6 +34,28 @@ public interface OAuth2Service {
      * @throws IOException 处理过程中可能发生的IO异常
      */
     RestBean<Object> handleGithubCallback(String code, String state, HttpServletResponse response) throws IOException;
+    
+    /**
+     * 获取Google OAuth2授权URL
+     * 生成带有状态参数的Google OAuth2授权地址，用于前端重定向
+     * 状态参数将在回调时验证以防止CSRF攻击
+     *
+     * @return 包含授权URL信息的RestBean响应，成功时返回包含authorizeUrl和state的Map
+     */
+    RestBean<Map<String, String>> getGoogleAuthorizeUrl();
+
+    /**
+     * 处理Google OAuth2回调
+     * 接收Google认证回调，验证授权码并获取用户信息
+     * 如用户已绑定则自动登录，否则引导用户完成注册
+     *
+     * @param code     Google授权成功返回的授权码
+     * @param state    安全校验码，必须与发起授权请求时提供的state一致
+     * @param response HTTP响应对象，用于重定向和设置认证Cookie
+     * @return 包含处理结果的RestBean响应
+     * @throws IOException 处理过程中可能发生的IO异常
+     */
+    RestBean<Object> handleGoogleCallback(String code, String state, HttpServletResponse response) throws IOException;
 
     /**
      * 完成OAuth2用户注册
