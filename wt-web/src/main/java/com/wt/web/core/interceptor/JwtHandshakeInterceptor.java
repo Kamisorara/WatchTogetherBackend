@@ -27,7 +27,9 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor, HandshakeInt
     @Resource
     private RedisCache redisCache;
 
-    // 保留原有的ChannelInterceptor实现
+    /**
+     * 拦截 STOMP 消息通道上的 CONNECT 消息
+     */
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         if (message.getHeaders().get("simpMessageType") == SimpMessageType.CONNECT) {
@@ -44,7 +46,9 @@ public class JwtHandshakeInterceptor implements ChannelInterceptor, HandshakeInt
         return message;
     }
 
-    // 添加HandshakeInterceptor接口实现
+    /**
+     * 拦截原生 WebSocket 握手请求
+     */
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                    WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
