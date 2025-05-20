@@ -16,7 +16,7 @@ wt-web -> wt-service -> wt-dao -> wt-common -> wt-entity
 
 ### 系统架构图
 
-![img1.jpg](img/img1.jpg)
+![img1.png](img/img1.png)
 
 
 ------
