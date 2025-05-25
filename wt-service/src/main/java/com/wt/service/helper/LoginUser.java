@@ -13,20 +13,27 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * 登录用户信息封装类，实现 Spring Security 的 UserDetails 接口
+ */
 @Data
 @NoArgsConstructor
 public class LoginUser implements UserDetails {
     private SysUser user;
+    // 权限字符串列表（如 "sys:user:add"）
     private List<String> permissionsList; // 存储权限信息
     @JSONField(serialize = false) // 不序列化进redis中
-    private List<SimpleGrantedAuthority> authorities; // 存储SpringSecurity所需要的权限信息集合
+    // Spring Security 所需的权限对象集合，不序列化进 Redis
+    private List<SimpleGrantedAuthority> authorities;
 
     public LoginUser(SysUser user, List<String> permissions) {
         this.user = user;
         this.permissionsList = permissions;
     }
-
-
+    
+    /**
+     * 返回权限信息集合，供 Spring Security 授权使用
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (authorities == null) {
